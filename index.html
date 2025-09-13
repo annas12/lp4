@@ -65,119 +65,130 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-emerald-50 relative overflow-x-hidden">
+<body class="h-screen bg-gradient-to-br from-green-50 via-blue-50 to-emerald-50 relative overflow-hidden">
     <!-- Floating Background Cells -->
     <div id="floatingCells"></div>
     
     <!-- Main Container -->
-    <div class="container mx-auto px-4 py-8 relative z-10">
+    <div class="h-full flex flex-col px-6 py-4 relative z-10 max-w-md mx-auto">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-green-800 mb-2">🔬 Kuis Biologi Interaktif 🧬</h1>
-            <p class="text-lg text-blue-700">Jelajahi dunia biologi dengan menyenangkan!</p>
+        <div class="text-center mb-4 flex-shrink-0">
+            <h1 class="text-2xl font-bold text-green-800 mb-1">🔬 Kuis Biologi 🧬</h1>
+            <p class="text-sm text-blue-700">Jelajahi dunia biologi!</p>
         </div>
         
         <!-- Level Selection Screen -->
-        <div id="levelSelection" class="max-w-4xl mx-auto">
-            <div class="text-center mb-8">
-                <h2 class="text-2xl font-bold text-green-700 mb-4">🌱 Pilih Tingkat Kesulitan 🌱</h2>
-                <div class="grid md:grid-cols-3 gap-6">
-                    <div class="question-card p-6 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('mudah')">
-                        <div class="text-4xl mb-4">🌱</div>
-                        <h3 class="text-xl font-bold text-green-700 mb-2">Mudah</h3>
-                        <p class="text-gray-600">Konsep dasar biologi</p>
-                        <p class="text-sm text-green-600 mt-2">30 soal</p>
+        <div id="levelSelection" class="flex-1 flex flex-col">
+            <div class="text-center mb-4 flex-shrink-0">
+                <h2 class="text-lg font-bold text-green-700 mb-3">🌱 Pilih Tingkat Kesulitan 🌱</h2>
+            </div>
+            <div class="flex-1 flex flex-col gap-3 justify-center">
+                <div class="question-card p-4 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('mudah')">
+                    <div class="flex items-center">
+                        <div class="text-3xl mr-4">🌱</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-green-700">Mudah</h3>
+                            <p class="text-sm text-gray-600">Konsep dasar biologi</p>
+                        </div>
                     </div>
-                    <div class="question-card p-6 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('sedang')">
-                        <div class="text-4xl mb-4">🌿</div>
-                        <h3 class="text-xl font-bold text-green-700 mb-2">Sedang</h3>
-                        <p class="text-gray-600">Pemahaman mendalam</p>
-                        <p class="text-sm text-green-600 mt-2">30 soal</p>
+                </div>
+                <div class="question-card p-4 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('sedang')">
+                    <div class="flex items-center">
+                        <div class="text-3xl mr-4">🌿</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-green-700">Sedang</h3>
+                            <p class="text-sm text-gray-600">Pemahaman mendalam</p>
+                        </div>
                     </div>
-                    <div class="question-card p-6 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('sulit')">
-                        <div class="text-4xl mb-4">🌳</div>
-                        <h3 class="text-xl font-bold text-green-700 mb-2">Sulit</h3>
-                        <p class="text-gray-600">Tantangan ahli biologi</p>
-                        <p class="text-sm text-green-600 mt-2">30 soal</p>
+                </div>
+                <div class="question-card p-4 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('sulit')">
+                    <div class="flex items-center">
+                        <div class="text-3xl mr-4">🌳</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-green-700">Sulit</h3>
+                            <p class="text-sm text-gray-600">Tantangan ahli biologi</p>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="flex-shrink-0 h-8"></div>
         </div>
         
         <!-- Quiz Screen -->
-        <div id="quizScreen" class="hidden max-w-4xl mx-auto">
+        <div id="quizScreen" class="hidden flex-1 flex flex-col">
             <!-- Progress Bar -->
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-medium text-green-700">Kemajuan</span>
-                    <span class="text-sm font-medium text-green-700" id="progressText">1/30</span>
+            <div class="mb-3 flex-shrink-0">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs font-medium text-green-700">Kemajuan</span>
+                    <span class="text-xs font-medium text-green-700" id="progressText">1/30</span>
                 </div>
-                <div class="w-full bg-green-200 rounded-full h-3">
-                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500" id="progressBar" style="width: 3.33%"></div>
+                <div class="w-full bg-green-200 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-500" id="progressBar" style="width: 3.33%"></div>
                 </div>
             </div>
             
-            <!-- Plant Progress -->
-            <div class="text-center mb-6">
-                <div class="text-6xl progress-plant" id="plantProgress">🌱</div>
-                <p class="text-sm text-green-600 mt-2" id="plantText">Tanaman Anda sedang tumbuh!</p>
-            </div>
-            
-            <!-- Score -->
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center bg-white rounded-full px-6 py-2 shadow-lg">
-                    <span class="text-lg font-bold text-green-700">Skor: </span>
-                    <span class="text-lg font-bold text-blue-600 ml-2" id="score">0</span>
-                    <span class="text-lg text-green-600 ml-2">🏆</span>
+            <!-- Plant Progress & Score -->
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <div class="text-center">
+                    <div class="text-4xl progress-plant" id="plantProgress">🌱</div>
+                    <p class="text-xs text-green-600 mt-1" id="plantText">Sedang tumbuh!</p>
+                </div>
+                <div class="bg-white rounded-full px-4 py-2 shadow-lg">
+                    <span class="text-sm font-bold text-green-700">Skor: </span>
+                    <span class="text-sm font-bold text-blue-600" id="score">0</span>
+                    <span class="text-sm text-green-600 ml-1">🏆</span>
                 </div>
             </div>
             
             <!-- Question Card -->
-            <div class="question-card p-8 rounded-xl mb-6">
-                <div class="text-center mb-6">
-                    <div class="text-3xl mb-4" id="questionEmoji">🦠</div>
-                    <h3 class="text-xl font-bold text-green-800 mb-4" id="questionText"></h3>
+            <div class="question-card p-4 rounded-xl mb-4 flex-1 flex flex-col">
+                <div class="text-center mb-4 flex-shrink-0">
+                    <div class="text-2xl mb-2" id="questionEmoji">🦠</div>
+                    <h3 class="text-base font-bold text-green-800" id="questionText"></h3>
                 </div>
                 
-                <div class="grid gap-4" id="optionsContainer"></div>
+                <div class="flex-1 flex flex-col gap-2 justify-center" id="optionsContainer"></div>
             </div>
             
             <!-- Next Button -->
-            <div class="text-center">
-                <button id="nextButton" class="hidden bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-3 rounded-full font-bold hover:from-green-600 hover:to-blue-600 transition-all" onclick="nextQuestion()">
+            <div class="text-center flex-shrink-0 mb-4">
+                <button id="nextButton" class="hidden bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-2 rounded-full font-bold hover:from-green-600 hover:to-blue-600 transition-all text-sm" onclick="nextQuestion()">
                     Soal Berikutnya 🌿
                 </button>
             </div>
         </div>
         
         <!-- Results Screen -->
-        <div id="resultsScreen" class="hidden max-w-4xl mx-auto text-center">
-            <div class="question-card p-8 rounded-xl">
-                <div class="text-6xl mb-6">🏆</div>
-                <h2 class="text-3xl font-bold text-green-800 mb-4">Selamat!</h2>
-                <div class="text-8xl mb-6" id="finalPlant">🌳</div>
+        <div id="resultsScreen" class="hidden flex-1 flex flex-col">
+            <div class="question-card p-6 rounded-xl flex-1 flex flex-col justify-center text-center">
+                <div class="text-4xl mb-3">🏆</div>
+                <h2 class="text-xl font-bold text-green-800 mb-3">Selamat!</h2>
+                <div class="text-5xl mb-4" id="finalPlant">🌳</div>
                 
                 <!-- Digital Badge -->
-                <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-6 rounded-xl mb-6 inline-block">
-                    <div class="text-4xl mb-2">🔬🧪🧬</div>
-                    <h3 class="text-xl font-bold">Ahli Biologi Junior</h3>
-                    <p class="text-sm opacity-90">Lencana Digital</p>
+                <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-4 rounded-xl mb-4 mx-auto">
+                    <div class="text-2xl mb-1">🔬🧪🧬</div>
+                    <h3 class="text-base font-bold">Ahli Biologi Junior</h3>
+                    <p class="text-xs opacity-90">Lencana Digital</p>
                 </div>
                 
-                <div class="text-2xl font-bold text-green-700 mb-4">
+                <div class="text-lg font-bold text-green-700 mb-3">
                     Skor Akhir: <span id="finalScore" class="text-blue-600">0</span>/30
                 </div>
                 
-                <div class="text-lg text-gray-700 mb-6" id="resultMessage"></div>
+                <div class="text-sm text-gray-700 mb-4" id="resultMessage"></div>
                 
-                <button class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-3 rounded-full font-bold hover:from-green-600 hover:to-blue-600 transition-all mr-4" onclick="restartQuiz()">
-                    Main Lagi 🔄
-                </button>
-                
-                <button class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-full font-bold hover:from-blue-600 hover:to-purple-600 transition-all" onclick="changeDifficulty()">
-                    Ganti Tingkat 📚
-                </button>
+                <div class="flex gap-2 justify-center">
+                    <button class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-full font-bold hover:from-green-600 hover:to-blue-600 transition-all text-sm" onclick="restartQuiz()">
+                        Main Lagi 🔄
+                    </button>
+                    
+                    <button class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full font-bold hover:from-blue-600 hover:to-purple-600 transition-all text-sm" onclick="changeDifficulty()">
+                        Ganti Tingkat 📚
+                    </button>
+                </div>
             </div>
+            <div class="flex-shrink-0 h-8"></div>
         </div>
     </div>
 
@@ -332,7 +343,7 @@
             
             question.options.forEach((option, index) => {
                 const button = document.createElement('button');
-                button.className = 'option-button w-full p-4 text-left bg-white border-2 border-green-200 rounded-lg hover:border-green-400 transition-all';
+                button.className = 'option-button w-full p-3 text-left bg-white border-2 border-green-200 rounded-lg hover:border-green-400 transition-all text-sm';
                 button.textContent = option;
                 button.onclick = () => selectAnswer(index);
                 optionsContainer.appendChild(button);
@@ -395,13 +406,13 @@
             
             if (progress === 0) {
                 plantElement.textContent = '🌱';
-                plantText.textContent = 'Tanaman Anda sedang tumbuh!';
+                plantText.textContent = 'Sedang tumbuh!';
             } else if (progress === 1) {
                 plantElement.textContent = '🌿';
-                plantText.textContent = 'Tanaman Anda berkembang pesat!';
+                plantText.textContent = 'Berkembang pesat!';
             } else {
                 plantElement.textContent = '🌳';
-                plantText.textContent = 'Tanaman Anda sudah besar!';
+                plantText.textContent = 'Sudah besar!';
             }
         }
         
@@ -468,5 +479,5 @@
         // Initialize the app
         createFloatingCells();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4abbf13774e66',t:'MTc1NzczNTMyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4b8d602cafdf7',t:'MTc1NzczNTg2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
