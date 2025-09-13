@@ -1,386 +1,472 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Tower Builder Mini</title>
-  <style>
-    :root{
-      --bg:#0b1220; --fg:#e7eefc; --muted:#94a3b8; --line:#1f2b4a; --accent:#5eead4; --warn:#f59e0b; --danger:#ef4444; --ok:#22c55e;
-      --floor: 62px; /* tinggi per lantai */
-      --w: 180px;    /* lebar lantai awal */
-      --arenaPad: 14px;
-    }
-    *{box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent}
-    html,body{height:100%; margin:0; background:var(--bg); color:var(--fg); font:500 16px/1.5 system-ui,Segoe UI,Roboto,Arial}
-
-    .app{position:fixed; inset:0; display:flex; flex-direction:column; gap:10px; padding:10px}
-
-    .hud{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-    .chip{padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:#0e1931; color:var(--fg)}
-    .chip b{color:#fff}
-    .spacer{flex:1}
-    .btn{border:1px solid var(--line); background:#152240; color:var(--fg); padding:8px 12px; border-radius:12px; cursor:pointer}
-    .btn.primary{background:var(--accent); color:#05211d; font-weight:700; border:0}
-
-    .arena{position:relative; flex:1; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:linear-gradient(#0e1830,#081122 55%);
-      box-shadow:inset 0 30px 80px rgba(0,0,0,.35)}
-    .skyline{position:absolute; inset:0; pointer-events:none;}
-    .skyline::before{content:""; position:absolute; inset:auto 0 0 0; height:42%; background:
-      linear-gradient(to top, rgba(9,16,32,.9), rgba(9,16,32,.0)),
-      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="240" viewBox="0 0 800 240"><g fill="%2312233f" opacity="0.95"><rect x="0" y="120" width="60" height="120"/><rect x="70" y="140" width="50" height="100"/><rect x="130" y="100" width="70" height="140"/><rect x="220" y="150" width="60" height="90"/><rect x="300" y="110" width="80" height="130"/><rect x="400" y="130" width="50" height="110"/><rect x="470" y="100" width="65" height="140"/><rect x="545" y="150" width="55" height="90"/><rect x="610" y="120" width="70" height="120"/><rect x="700" y="140" width="50" height="100"/></g></svg>') center bottom/800px 240px repeat-x;}
-
-    /* Crane */
-    .crane{position:absolute; top:6%; left:0; right:0; height:80px; pointer-events:none}
-    .crane .arm{position:absolute; left:50%; top:0; width:260px; height:6px; background:#1e2e52; transform-origin:left center; border-radius:4px}
-    .crane .hook{position:absolute; width:18px; height:18px; border-radius:50%; background:#223862; box-shadow:0 0 0 2px #0b1220 inset}
-    .crane .cable{position:absolute; width:2px; background:#314a7a}
-
-    /* Drop block */
-    .block{position:absolute; width:var(--w); height:var(--floor); border-radius:10px; background:linear-gradient(180deg,#3b82f6,#1d4ed8);
-      border:1px solid rgba(255,255,255,.07); box-shadow:0 8px 20px rgba(0,0,0,.35)}
-    .block .win{position:absolute; left:10px; right:10px; top:14px; height:22px; display:grid; grid-template-columns:repeat(5,1fr); gap:6px}
-    .block .win span{background:rgba(255,255,255,.12); border-radius:3px}
-
-    /* Tower */
-    .tower-wrap{position:absolute; bottom:calc(var(--arenaPad)); left:50%; transform:translateX(-50%); width:600px; height:100%; pointer-events:none}
-    .tower{position:absolute; bottom:0; left:50%; transform:translateX(-50%); transform-origin:50% 100%;}
-
-    .base{position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:280px; height:22px; background:#0f1f3c; border:1px solid #243a69; border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,.45)}
-
-    /* Overlays */
-    .overlay{position:absolute; inset:0; display:grid; place-items:center; background:rgba(7,12,24,.55); backdrop-filter:blur(2px)}
-    .card{background:#0e1931; border:1px solid var(--line); border-radius:18px; padding:18px; width:min(440px,92%); text-align:center; box-shadow:0 12px 30px rgba(0,0,0,.35)}
-    .title{font-size:22px; margin:0 0 8px}
-    .subtitle{font-size:14px; color:var(--muted); margin:0 0 16px}
-
-    .float-msg{position:absolute; left:50%; transform:translateX(-50%); top:20%; padding:8px 12px; border-radius:999px; background:#1a2848; border:1px solid var(--line); opacity:0; pointer-events:none}
-
-    .hearts{letter-spacing:2px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Biologi Interaktif - SMP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        @keyframes floatLeaves {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .floating-cell {
+            animation: float 4s ease-in-out infinite;
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+        
+        .floating-leaf {
+            animation: floatLeaves 3s linear;
+            position: fixed;
+            font-size: 2rem;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .progress-plant {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 100%);
+            border: 2px solid #10b981;
+        }
+        
+        .option-button {
+            transition: all 0.3s ease;
+        }
+        
+        .option-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .incorrect {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+    </style>
 </head>
-<body>
-  <div class="app">
-    <div class="hud">
-      <div class="chip">Lantai: <b data-id="floors">0</b></div>
-      <div class="chip">Populasi: <b data-id="pop">0</b></div>
-      <div class="chip">Combo: <b data-id="combo">x1</b></div>
-      <div class="chip">Distrik: <b data-id="district">Kampung</b></div>
-      <div class="chip hearts" data-id="lives">❤❤❤</div>
-      <div class="spacer"></div>
-      <button class="btn" data-act="pause">⏸️</button>
-      <button class="btn" data-act="resume" disabled>▶️</button>
-      <button class="btn" data-act="reset">🔄</button>
+<body class="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-emerald-50 relative overflow-x-hidden">
+    <!-- Floating Background Cells -->
+    <div id="floatingCells"></div>
+    
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8 relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-green-800 mb-2">🔬 Kuis Biologi Interaktif 🧬</h1>
+            <p class="text-lg text-blue-700">Jelajahi dunia biologi dengan menyenangkan!</p>
+        </div>
+        
+        <!-- Level Selection Screen -->
+        <div id="levelSelection" class="max-w-4xl mx-auto">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-green-700 mb-4">🌱 Pilih Tingkat Kesulitan 🌱</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="question-card p-6 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('mudah')">
+                        <div class="text-4xl mb-4">🌱</div>
+                        <h3 class="text-xl font-bold text-green-700 mb-2">Mudah</h3>
+                        <p class="text-gray-600">Konsep dasar biologi</p>
+                        <p class="text-sm text-green-600 mt-2">30 soal</p>
+                    </div>
+                    <div class="question-card p-6 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('sedang')">
+                        <div class="text-4xl mb-4">🌿</div>
+                        <h3 class="text-xl font-bold text-green-700 mb-2">Sedang</h3>
+                        <p class="text-gray-600">Pemahaman mendalam</p>
+                        <p class="text-sm text-green-600 mt-2">30 soal</p>
+                    </div>
+                    <div class="question-card p-6 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('sulit')">
+                        <div class="text-4xl mb-4">🌳</div>
+                        <h3 class="text-xl font-bold text-green-700 mb-2">Sulit</h3>
+                        <p class="text-gray-600">Tantangan ahli biologi</p>
+                        <p class="text-sm text-green-600 mt-2">30 soal</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quiz Screen -->
+        <div id="quizScreen" class="hidden max-w-4xl mx-auto">
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-green-700">Kemajuan</span>
+                    <span class="text-sm font-medium text-green-700" id="progressText">1/30</span>
+                </div>
+                <div class="w-full bg-green-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500" id="progressBar" style="width: 3.33%"></div>
+                </div>
+            </div>
+            
+            <!-- Plant Progress -->
+            <div class="text-center mb-6">
+                <div class="text-6xl progress-plant" id="plantProgress">🌱</div>
+                <p class="text-sm text-green-600 mt-2" id="plantText">Tanaman Anda sedang tumbuh!</p>
+            </div>
+            
+            <!-- Score -->
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center bg-white rounded-full px-6 py-2 shadow-lg">
+                    <span class="text-lg font-bold text-green-700">Skor: </span>
+                    <span class="text-lg font-bold text-blue-600 ml-2" id="score">0</span>
+                    <span class="text-lg text-green-600 ml-2">🏆</span>
+                </div>
+            </div>
+            
+            <!-- Question Card -->
+            <div class="question-card p-8 rounded-xl mb-6">
+                <div class="text-center mb-6">
+                    <div class="text-3xl mb-4" id="questionEmoji">🦠</div>
+                    <h3 class="text-xl font-bold text-green-800 mb-4" id="questionText"></h3>
+                </div>
+                
+                <div class="grid gap-4" id="optionsContainer"></div>
+            </div>
+            
+            <!-- Next Button -->
+            <div class="text-center">
+                <button id="nextButton" class="hidden bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-3 rounded-full font-bold hover:from-green-600 hover:to-blue-600 transition-all" onclick="nextQuestion()">
+                    Soal Berikutnya 🌿
+                </button>
+            </div>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="hidden max-w-4xl mx-auto text-center">
+            <div class="question-card p-8 rounded-xl">
+                <div class="text-6xl mb-6">🏆</div>
+                <h2 class="text-3xl font-bold text-green-800 mb-4">Selamat!</h2>
+                <div class="text-8xl mb-6" id="finalPlant">🌳</div>
+                
+                <!-- Digital Badge -->
+                <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-6 rounded-xl mb-6 inline-block">
+                    <div class="text-4xl mb-2">🔬🧪🧬</div>
+                    <h3 class="text-xl font-bold">Ahli Biologi Junior</h3>
+                    <p class="text-sm opacity-90">Lencana Digital</p>
+                </div>
+                
+                <div class="text-2xl font-bold text-green-700 mb-4">
+                    Skor Akhir: <span id="finalScore" class="text-blue-600">0</span>/30
+                </div>
+                
+                <div class="text-lg text-gray-700 mb-6" id="resultMessage"></div>
+                
+                <button class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-3 rounded-full font-bold hover:from-green-600 hover:to-blue-600 transition-all mr-4" onclick="restartQuiz()">
+                    Main Lagi 🔄
+                </button>
+                
+                <button class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-full font-bold hover:from-blue-600 hover:to-purple-600 transition-all" onclick="changeDifficulty()">
+                    Ganti Tingkat 📚
+                </button>
+            </div>
+        </div>
     </div>
 
-    <div class="arena" id="arena">
-      <div class="skyline"></div>
-
-      <!-- Crane -->
-      <div class="crane" id="crane">
-        <div class="arm" id="arm"></div>
-        <div class="cable" id="cable"></div>
-        <div class="hook" id="hook"></div>
-      </div>
-
-      <!-- Falling / swing block (active) -->
-      <div class="block" id="active" style="display:none">
-        <div class="win"></div>
-      </div>
-
-      <!-- Tower -->
-      <div class="tower-wrap">
-        <div class="tower" id="tower"></div>
-        <div class="base"></div>
-      </div>
-
-      <div class="overlay" id="start">
-        <div class="card">
-          <h2 class="title">Tower Builder Mini</h2>
-          <p class="subtitle">Ketuk/klik untuk <b>drop lantai</b> saat crane mengayun. Jatuhkan sedekat mungkin ke tengah menara.
-            <br>• <b>Perfect</b> (≤6px): +combo & populasi ekstra.
-            <br>• <b>Meleset berat</b>: lantai jatuh ➜ -1 ❤.
-            <br>• <b>Tilt</b> terlalu besar (&gt;14°): menara roboh.
-          </p>
-          <button class="btn primary" data-act="start">Mulai</button>
-          <div style="margin-top:10px; font-size:12px; color:var(--muted)">Mode: Quick Game • No Izin • Siap Web2APK</div>
-        </div>
-      </div>
-
-      <div class="overlay" id="over" style="display:none">
-        <div class="card">
-          <h2 class="title">Game Over</h2>
-          <p class="subtitle" id="summary"></p>
-          <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
-            <button class="btn primary" data-act="restart">Main Lagi</button>
-            <button class="btn" data-act="home">Beranda</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="float-msg" id="float">Perfect!</div>
-    </div>
-  </div>
-
-  <script>
-  (()=>{
-    const $ = (sel,root=document)=>root.querySelector(sel);
-    const arena = $('#arena');
-    const ui = {
-      floors: $('[data-id="floors"]'),
-      pop:    $('[data-id="pop"]'),
-      combo:  $('[data-id="combo"]'),
-      lives:  $('[data-id="lives"]'),
-      district: $('[data-id="district"]'),
-      start:  $('#start'),
-      over:   $('#over'),
-      summary:$('#summary'),
-      btn:{
-        start:$('[data-act="start"]'), restart:$('[data-act="restart"]'), home:$('[data-act="home"]'),
-        pause:$('[data-act="pause"]'), resume:$('[data-act="resume"]'), reset:$('[data-act="reset"]')
-      },
-      float: $('#float'),
-    };
-
-    const crane = { wrap: $('#crane'), arm: $('#arm'), hook: $('#hook'), cable: $('#cable') };
-    const active = $('#active');
-    const tower  = $('#tower');
-
-    const S = {
-      playing:false, paused:false,
-      floors:0, pop:0, combo:1, lives:3, high: +(localStorage.getItem('tb_high')||0),
-      lastX:0, // posisi pusat lantai terakhir
-      arena:{w:0,h:0},
-      block:{w: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--w')), h: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--floor'))},
-      swing:{amp:140, speed:1.15, t:0},
-      fallSpeed: 920, // px/s
-      tilt:0, tiltLimit:14, tiltSpring:0.997, swayAmp:0.6, swaySpd:1.4,
-      fatalDXRatio:0.62, perfectPX:6,
-      camY:0,
-    };
-
-    // Utility
-    function rndColor(){
-      const hues=[210,190,260,330,20,140];
-      const h = hues[Math.floor(Math.random()*hues.length)];
-      return `linear-gradient(180deg, hsl(${h} 85% 62%), hsl(${h} 75% 48%))`;
-    }
-    function mkWindows(el){ el.innerHTML=''; for(let i=0;i<10;i++){const s=document.createElement('span'); el.appendChild(s);} }
-
-    // Layout init
-    function measure(){ const r = arena.getBoundingClientRect(); S.arena.w=r.width; S.arena.h=r.height; }
-    window.addEventListener('resize', measure, {passive:true});
-    measure();
-
-    // Crane position update
-    function craneX(){ return S.arena.w/2 + Math.sin(S.swing.t)*S.swing.amp; }
-    function updateCrane(){
-      const x = craneX();
-      // Arm rotation visual only
-      const angle = Math.atan2(0, 220) * 180/Math.PI; // small tilt
-      crane.arm.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-      const top = 0;
-      const yTop = top+6; // arm base
-      const cabX = x; // over arena center +/-
-      const cabY = 6;
-      const hookY = 120; // cable length
-      crane.cable.style.left = cabX+"px"; crane.cable.style.top = yTop+"px"; crane.cable.style.height = hookY+"px";
-      crane.hook.style.left = (cabX-9)+"px"; crane.hook.style.top = (yTop+hookY-9)+"px";
-      if(active.style.display!=='none'){
-        active.style.left = (cabX - S.block.w/2)+"px";
-        active.style.top  = (yTop+hookY+6)+"px";
-      }
-    }
-
-    function setHUD(){
-      ui.floors.textContent = S.floors;
-      ui.pop.textContent = S.pop;
-      ui.combo.textContent = `x${S.combo}`;
-      ui.lives.textContent = '❤'.repeat(S.lives) + '♡'.repeat(3-S.lives);
-      // Districts by population
-      const d = S.pop < 120 ? 'Kampung' : S.pop < 300 ? 'Kecamatan' : S.pop < 650 ? 'Kota Kecil' : 'Metro';
-      ui.district.textContent = d;
-    }
-
-    // Spawn the swinging block
-    function spawnActive(){
-      active.style.display='block';
-      active.style.width = S.block.w+"px"; active.style.height=S.block.h+"px";
-      active.style.background = rndColor();
-      mkWindows($('.win', active));
-      updateCrane();
-    }
-
-    // Place a static floor into tower
-    function placeFloor(x){
-      const f = document.createElement('div');
-      f.className='block';
-      f.style.width = S.block.w+"px";
-      f.style.height = S.block.h+"px";
-      f.style.left = (x - S.block.w/2) + 'px';
-      f.style.bottom = (S.floors * S.block.h) + 'px';
-      f.style.background = active.style.background;
-      const w = document.createElement('div'); w.className='win'; mkWindows(w); f.appendChild(w);
-      f.style.position='absolute';
-      tower.appendChild(f);
-    }
-
-    function floatMsg(txt, color){
-      const e = ui.float; e.textContent = txt; e.style.borderColor = 'rgba(255,255,255,.12)';
-      e.style.background = '#1a2848'; e.style.color = color || '#fff';
-      e.style.opacity = 0; e.style.transform = 'translate(-50%,-8px)';
-      e.style.transition = 'none';
-      requestAnimationFrame(()=>{
-        e.style.transition = 'opacity .18s ease, transform .18s ease';
-        e.style.opacity = 1; e.style.transform = 'translate(-50%,0)';
-        setTimeout(()=>{ e.style.opacity=0; e.style.transform='translate(-50%, -8px)'; }, 550);
-      });
-    }
-
-    // Drop logic
-    function drop(){
-      if(!S.playing || S.paused || active.style.display==='none') return;
-      // animate fall to current tower top height
-      const startY = parseFloat(active.style.top);
-      const targetY = arena.getBoundingClientRect().height - (S.floors*S.block.h) - parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--arenaPad')) - S.block.h;
-      const x = parseFloat(active.style.left) + S.block.w/2; // center
-      const v = S.fallSpeed; // px/s
-      let y = startY; let t0=null;
-
-      function step(ts){
-        if(!t0) t0 = ts;
-        const dt = (ts - t0)/1000;
-        y = startY + v*dt;
-        if(y >= targetY){
-          active.style.top = targetY+'px';
-          land(x);
-          return;
+    <script>
+        // Quiz Data
+        const quizData = {
+            mudah: [
+                {emoji: "🦠", question: "Apa unit terkecil dari makhluk hidup?", options: ["Sel", "Jaringan", "Organ", "Organisme"], correct: 0},
+                {emoji: "🌱", question: "Proses pembuatan makanan pada tumbuhan disebut?", options: ["Respirasi", "Fotosintesis", "Transpirasi", "Fermentasi"], correct: 1},
+                {emoji: "🧬", question: "DNA adalah singkatan dari?", options: ["Deoxyribonucleic Acid", "Deoxyribose Acid", "Deoxy Acid", "Ribonucleic Acid"], correct: 0},
+                {emoji: "🦠", question: "Organel yang menghasilkan energi dalam sel adalah?", options: ["Nukleus", "Mitokondria", "Ribosom", "Vakuola"], correct: 1},
+                {emoji: "🌿", question: "Zat hijau daun yang berperan dalam fotosintesis adalah?", options: ["Klorofil", "Karotin", "Xantofil", "Antosianin"], correct: 0},
+                {emoji: "🐅", question: "Hewan yang termasuk mamalia adalah?", options: ["Ikan", "Burung", "Harimau", "Ular"], correct: 2},
+                {emoji: "🦠", question: "Bagian sel yang mengatur keluar masuknya zat adalah?", options: ["Dinding sel", "Membran sel", "Sitoplasma", "Nukleus"], correct: 1},
+                {emoji: "🌱", question: "Gas yang dibutuhkan tumbuhan untuk fotosintesis adalah?", options: ["Oksigen", "Nitrogen", "Karbon dioksida", "Hidrogen"], correct: 2},
+                {emoji: "🐸", question: "Hewan yang mengalami metamorfosis adalah?", options: ["Kucing", "Katak", "Ikan", "Burung"], correct: 1},
+                {emoji: "🧫", question: "Ilmu yang mempelajari tentang sel disebut?", options: ["Histologi", "Sitologi", "Anatomi", "Fisiologi"], correct: 1},
+                {emoji: "🦠", question: "Organel yang berfungsi sebagai pusat kendali sel adalah?", options: ["Mitokondria", "Ribosom", "Nukleus", "Lisosom"], correct: 2},
+                {emoji: "🌿", question: "Hasil fotosintesis berupa?", options: ["Glukosa dan oksigen", "Air dan CO2", "Protein", "Lemak"], correct: 0},
+                {emoji: "🐛", question: "Hewan tidak bertulang belakang disebut?", options: ["Vertebrata", "Invertebrata", "Mamalia", "Reptil"], correct: 1},
+                {emoji: "🌱", question: "Bagian tumbuhan yang berfungsi menyerap air adalah?", options: ["Daun", "Batang", "Akar", "Bunga"], correct: 2},
+                {emoji: "🦠", question: "Sel tumbuhan memiliki ... yang tidak dimiliki sel hewan", options: ["Nukleus", "Mitokondria", "Dinding sel", "Ribosom"], correct: 2},
+                {emoji: "🐟", question: "Ikan bernapas menggunakan?", options: ["Paru-paru", "Insang", "Kulit", "Trakea"], correct: 1},
+                {emoji: "🌿", question: "Proses penguapan air melalui daun disebut?", options: ["Fotosintesis", "Respirasi", "Transpirasi", "Osmosis"], correct: 2},
+                {emoji: "🦅", question: "Ciri khas burung adalah?", options: ["Berbulu dan bertelur", "Menyusui", "Berdarah dingin", "Hidup di air"], correct: 0},
+                {emoji: "🧬", question: "Kromosom terdapat di dalam?", options: ["Sitoplasma", "Mitokondria", "Nukleus", "Ribosom"], correct: 2},
+                {emoji: "🌱", question: "Tumbuhan hijau disebut sebagai?", options: ["Konsumen", "Produsen", "Dekomposer", "Predator"], correct: 1},
+                {emoji: "🦠", question: "Organel yang berfungsi mencerna zat dalam sel adalah?", options: ["Lisosom", "Ribosom", "Vakuola", "Plastida"], correct: 0},
+                {emoji: "🐍", question: "Ular termasuk kelompok hewan?", options: ["Mamalia", "Amfibi", "Reptil", "Aves"], correct: 2},
+                {emoji: "🌿", question: "Stomata berfungsi untuk?", options: ["Fotosintesis", "Pertukaran gas", "Menyerap air", "Reproduksi"], correct: 1},
+                {emoji: "🦠", question: "Ribosom berfungsi untuk?", options: ["Sintesis protein", "Respirasi", "Fotosintesis", "Pencernaan"], correct: 0},
+                {emoji: "🐧", question: "Penguin termasuk kelompok?", options: ["Mamalia", "Reptil", "Aves", "Amfibi"], correct: 2},
+                {emoji: "🌱", question: "Bagian bunga yang berfungsi sebagai alat kelamin jantan adalah?", options: ["Putik", "Benang sari", "Mahkota", "Kelopak"], correct: 1},
+                {emoji: "🦠", question: "Vakuola pada sel tumbuhan berfungsi untuk?", options: ["Sintesis protein", "Menyimpan air", "Respirasi", "Fotosintesis"], correct: 1},
+                {emoji: "🐠", question: "Hewan yang hidup di air dan darat disebut?", options: ["Akuatik", "Terestrial", "Amfibi", "Arboreal"], correct: 2},
+                {emoji: "🌿", question: "Kloroplas hanya terdapat pada?", options: ["Sel hewan", "Sel tumbuhan", "Sel bakteri", "Sel jamur"], correct: 1},
+                {emoji: "🧬", question: "Sifat yang diturunkan dari induk ke keturunan disebut?", options: ["Adaptasi", "Evolusi", "Hereditas", "Mutasi"], correct: 2}
+            ],
+            sedang: [
+                {emoji: "🦠", question: "Organel yang berperan dalam sintesis lemak adalah?", options: ["RE kasar", "RE halus", "Ribosom", "Lisosom"], correct: 1},
+                {emoji: "🌱", question: "Reaksi terang fotosintesis terjadi di?", options: ["Stroma", "Tilakoid", "Sitoplasma", "Nukleus"], correct: 1},
+                {emoji: "🧬", question: "Jumlah kromosom manusia normal adalah?", options: ["44", "46", "48", "50"], correct: 1},
+                {emoji: "🦠", question: "Proses pembelahan sel yang menghasilkan gamet disebut?", options: ["Mitosis", "Meiosis", "Amitosis", "Sitokinesis"], correct: 1},
+                {emoji: "🌿", question: "Enzim yang memecah CO2 dalam fotosintesis adalah?", options: ["Rubisco", "Katalase", "Amilase", "Pepsin"], correct: 0},
+                {emoji: "🐆", question: "Sistem klasifikasi modern menggunakan berapa kingdom?", options: ["3", "5", "6", "7"], correct: 2},
+                {emoji: "🦠", question: "Fase mitosis dimana kromosom berjajar di tengah sel adalah?", options: ["Profase", "Metafase", "Anafase", "Telofase"], correct: 1},
+                {emoji: "🌱", question: "Faktor yang TIDAK mempengaruhi fotosintesis adalah?", options: ["Cahaya", "CO2", "Suhu", "Kelembaban tanah"], correct: 3},
+                {emoji: "🧫", question: "Bakteri yang dapat melakukan fotosintesis adalah?", options: ["E. coli", "Sianobakteri", "Streptococcus", "Lactobacillus"], correct: 1},
+                {emoji: "🦠", question: "Organel yang mengandung DNA selain nukleus adalah?", options: ["Ribosom", "Lisosom", "Mitokondria", "Vakuola"], correct: 2},
+                {emoji: "🌿", question: "Reaksi gelap fotosintesis disebut juga siklus?", options: ["Krebs", "Calvin", "Glikolisis", "Elektron"], correct: 1},
+                {emoji: "🐸", question: "Metamorfosis tidak sempurna terjadi pada?", options: ["Kupu-kupu", "Katak", "Belalang", "Nyamuk"], correct: 2},
+                {emoji: "🦠", question: "Sel yang tidak memiliki membran inti disebut?", options: ["Eukariot", "Prokariot", "Unisel", "Multisel"], correct: 1},
+                {emoji: "🌱", question: "Hormon yang mengatur pertumbuhan tumbuhan adalah?", options: ["Insulin", "Auksin", "Adrenalin", "Tiroksin"], correct: 1},
+                {emoji: "🧬", question: "Proses pembentukan RNA dari DNA disebut?", options: ["Transkripsi", "Translasi", "Replikasi", "Mutasi"], correct: 0},
+                {emoji: "🦠", question: "Organel yang berperan dalam detoksifikasi adalah?", options: ["Mitokondria", "RE halus", "Ribosom", "Lisosom"], correct: 1},
+                {emoji: "🌿", question: "Tumbuhan C4 memiliki keunggulan dalam kondisi?", options: ["Dingin", "Panas dan kering", "Lembab", "Gelap"], correct: 1},
+                {emoji: "🐋", question: "Mamalia yang hidup di laut adalah?", options: ["Hiu", "Paus", "Gurita", "Ubur-ubur"], correct: 1},
+                {emoji: "🦠", question: "Proses fagositosis dilakukan oleh?", options: ["Sel darah merah", "Sel darah putih", "Trombosit", "Plasma"], correct: 1},
+                {emoji: "🌱", question: "Xilem berfungsi mengangkut?", options: ["Gula", "Air dan mineral", "Oksigen", "Protein"], correct: 1},
+                {emoji: "🧬", question: "Mutasi yang terjadi pada sel kelamin disebut?", options: ["Somatik", "Germinal", "Kromosom", "Gen"], correct: 1},
+                {emoji: "🦠", question: "Tahap respirasi yang menghasilkan ATP paling banyak adalah?", options: ["Glikolisis", "Siklus Krebs", "Transport elektron", "Fermentasi"], correct: 2},
+                {emoji: "🌿", question: "Floem berfungsi mengangkut?", options: ["Air", "Mineral", "Hasil fotosintesis", "Oksigen"], correct: 2},
+                {emoji: "🐨", question: "Hewan yang melahirkan dalam kantong disebut?", options: ["Plasental", "Marsupial", "Monotrem", "Ovipar"], correct: 1},
+                {emoji: "🦠", question: "Enzim yang berperan dalam replikasi DNA adalah?", options: ["RNA polimerase", "DNA polimerase", "Ligase", "Helikase"], correct: 1},
+                {emoji: "🌱", question: "Gerak tumbuhan menuju cahaya disebut?", options: ["Fototropisme", "Geotropisme", "Hidrotropisme", "Tigmotropisme"], correct: 0},
+                {emoji: "🧫", question: "Virus hanya dapat berkembang biak di dalam?", options: ["Air", "Udara", "Sel hidup", "Tanah"], correct: 2},
+                {emoji: "🦠", question: "Organel yang berperan dalam pembentukan lisosom adalah?", options: ["RE kasar", "Badan Golgi", "Mitokondria", "Ribosom"], correct: 1},
+                {emoji: "🌿", question: "Tumbuhan yang dapat hidup tanpa tanah disebut?", options: ["Hidrofit", "Epifit", "Xerofit", "Halofit"], correct: 1},
+                {emoji: "🧬", question: "Kode genetik terdiri dari ... basa nitrogen", options: ["2", "3", "4", "5"], correct: 1}
+            ],
+            sulit: [
+                {emoji: "🦠", question: "Kompleks protein yang berperan dalam fotosistem II adalah?", options: ["Sitokrom b6f", "ATP sintase", "PSII", "Ferredoksin"], correct: 2},
+                {emoji: "🌱", question: "Jalur metabolisme C4 pertama kali ditemukan pada tumbuhan?", options: ["Jagung", "Padi", "Gandum", "Kedelai"], correct: 0},
+                {emoji: "🧬", question: "Enzim yang berperan dalam perbaikan DNA adalah?", options: ["Polimerase", "Ligase", "Exonuklease", "Semua benar"], correct: 3},
+                {emoji: "🦠", question: "Proses autofagi dilakukan oleh organel?", options: ["Lisosom", "Peroksisom", "Proteasom", "Autophagosom"], correct: 0},
+                {emoji: "🌿", question: "Senyawa yang berperan sebagai akseptor CO2 dalam siklus Calvin adalah?", options: ["RuBP", "PGA", "G3P", "RuBisCO"], correct: 0},
+                {emoji: "🧫", question: "Bakteri yang dapat memfiksasi nitrogen adalah?", options: ["Rhizobium", "Azotobacter", "Clostridium", "Semua benar"], correct: 3},
+                {emoji: "🦠", question: "Tahap siklus sel dimana DNA direplikasi adalah?", options: ["G1", "S", "G2", "M"], correct: 1},
+                {emoji: "🌱", question: "Hormon yang menghambat perkecambahan biji adalah?", options: ["Giberelin", "Sitokinin", "ABA", "Etilen"], correct: 2},
+                {emoji: "🧬", question: "Proses splicing terjadi pada?", options: ["DNA", "mRNA", "tRNA", "rRNA"], correct: 1},
+                {emoji: "🦠", question: "Protein motor yang bergerak sepanjang mikrotubul adalah?", options: ["Aktin", "Miosin", "Kinesin", "Tubulin"], correct: 2},
+                {emoji: "🌿", question: "Tumbuhan CAM membuka stomatanya pada?", options: ["Siang hari", "Malam hari", "Pagi hari", "Sore hari"], correct: 1},
+                {emoji: "🐙", question: "Sistem saraf cephalopoda paling kompleks terdapat pada?", options: ["Cumi-cumi", "Gurita", "Nautilus", "Siput"], correct: 1},
+                {emoji: "🦠", question: "Proses yang menghasilkan variasi genetik dalam meiosis adalah?", options: ["Crossing over", "Independent assortment", "Nondisjunction", "A dan B benar"], correct: 3},
+                {emoji: "🌱", question: "Fitohormon yang berperan dalam senescence adalah?", options: ["Auksin", "Sitokinin", "Etilen", "Giberelin"], correct: 2},
+                {emoji: "🧬", question: "Kodon stop dalam kode genetik adalah?", options: ["UAG, UAA, UGA", "AUG, UUG, CUG", "GGG, CCC, AAA", "UUU, CCC, GGG"], correct: 0},
+                {emoji: "🦠", question: "Organel yang berperan dalam β-oksidasi asam lemak adalah?", options: ["Mitokondria", "Peroksisom", "RE halus", "Sitoplasma"], correct: 1},
+                {emoji: "🌿", question: "Enzim yang mengkatalisis fiksasi CO2 pada tumbuhan C3 adalah?", options: ["PEP karboksilase", "RuBisCO", "Malat dehidrogenase", "Piruvat kinase"], correct: 1},
+                {emoji: "🧫", question: "Prion adalah agen infeksi yang terdiri dari?", options: ["DNA", "RNA", "Protein", "Lipid"], correct: 2},
+                {emoji: "🦠", question: "Kompleks protein yang berperan dalam apoptosis adalah?", options: ["Bcl-2", "p53", "Caspase", "Semua benar"], correct: 3},
+                {emoji: "🌱", question: "Jalur sinyal yang mengatur tropisme pada tumbuhan melibatkan?", options: ["Auksin", "Ca2+", "cAMP", "A dan B benar"], correct: 3},
+                {emoji: "🧬", question: "Mekanisme epigenetik yang mengatur ekspresi gen adalah?", options: ["Metilasi DNA", "Modifikasi histon", "microRNA", "Semua benar"], correct: 3},
+                {emoji: "🦠", question: "Protein yang berperan dalam checkpoint siklus sel adalah?", options: ["Siklin", "CDK", "p21", "Semua benar"], correct: 3},
+                {emoji: "🌿", question: "Metabolit sekunder yang berperan dalam pertahanan tumbuhan adalah?", options: ["Alkaloid", "Terpenoid", "Fenol", "Semua benar"], correct: 3},
+                {emoji: "🐚", question: "Mollusca yang memiliki sistem sirkulasi tertutup adalah?", options: ["Gastropoda", "Bivalvia", "Cephalopoda", "Scaphopoda"], correct: 2},
+                {emoji: "🦠", question: "Proses yang mengatur homeostasis kalsium intraseluler adalah?", options: ["Pompa Ca2+-ATPase", "Kanal Ca2+", "Protein pengikat Ca2+", "Semua benar"], correct: 3},
+                {emoji: "🌱", question: "Mekanisme resistensi herbisida pada tumbuhan transgenik melibatkan?", options: ["Detoksifikasi enzim", "Modifikasi target", "Transportasi aktif", "Semua benar"], correct: 3},
+                {emoji: "🧬", question: "Teknik CRISPR-Cas9 bekerja dengan cara?", options: ["Memotong DNA", "Mengedit gen", "Mengaktifkan gen", "Semua benar"], correct: 3},
+                {emoji: "🦠", question: "Organel yang berperan dalam sintesis steroid adalah?", options: ["RE kasar", "RE halus", "Mitokondria", "Peroksisom"], correct: 1},
+                {emoji: "🌿", question: "Adaptasi tumbuhan gurun untuk menghemat air meliputi?", options: ["Daun tebal", "Stomata sedikit", "Akar panjang", "Semua benar"], correct: 3},
+                {emoji: "🧫", question: "Mekanisme resistensi antibiotik pada bakteri dapat melalui?", options: ["Mutasi gen", "Transfer plasmid", "Produksi enzim", "Semua benar"], correct: 3}
+            ]
+        };
+        
+        let currentLevel = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questions = [];
+        let answered = false;
+        
+        // Initialize floating cells
+        function createFloatingCells() {
+            const container = document.getElementById('floatingCells');
+            const cells = ['🔬', '🦠', '🧫', '🧬'];
+            
+            for (let i = 0; i < 15; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'floating-cell';
+                cell.textContent = cells[Math.floor(Math.random() * cells.length)];
+                cell.style.left = Math.random() * 100 + '%';
+                cell.style.top = Math.random() * 100 + '%';
+                cell.style.animationDelay = Math.random() * 4 + 's';
+                cell.style.animationDuration = (3 + Math.random() * 4) + 's';
+                container.appendChild(cell);
+            }
         }
-        active.style.top = y+'px';
-        requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-
-    function land(x){
-      // dx vs lastX (desired center)
-      const dx = x - S.lastX;
-      const fatalDX = S.block.w * S.fatalDXRatio;
-
-      // fatal miss -> floor falls off, lose a life
-      if(Math.abs(dx) > fatalDX){
-        // animate fall down
-        const startTop = parseFloat(active.style.top);
-        let t0=null; function fall(ts){
-          if(!t0) t0=ts; const dt=(ts-t0)/1000; const y = startTop + 1100*dt;
-          active.style.top = y+'px'; active.style.opacity = String(1 - dt*0.9);
-          if(y > S.arena.h + 50){ finishMiss(); return; }
-          requestAnimationFrame(fall);
+        
+        // Start quiz with selected difficulty
+        function startQuiz(level) {
+            currentLevel = level;
+            questions = [...quizData[level]];
+            currentQuestionIndex = 0;
+            score = 0;
+            answered = false;
+            
+            document.getElementById('levelSelection').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            
+            showQuestion();
         }
-        requestAnimationFrame(fall);
-        return;
-      }
-
-      // Safe: attach to tower
-      placeFloor(x);
-      S.floors += 1;
-      S.pop += 10 + Math.max(0, S.combo-1)*3;
-
-      // Tilt increases by dx ratio
-      S.tilt += (dx / S.block.w) * 6.5; // degrees step
-      // Perfect
-      if(Math.abs(dx) <= S.perfectPX){
-        S.combo = Math.min(10, S.combo+1);
-        S.pop += 12 + S.combo; // bonus
-        floatMsg('Perfect +'+(12+S.combo), '#a7f3d0');
-        // sedikit tambah tantangan
-        S.swing.amp = Math.min(180, S.swing.amp + 2);
-        S.swing.speed = Math.min(1.6, S.swing.speed + 0.02);
-      } else {
-        S.combo = 1;
-      }
-
-      // Camera follow
-      S.camY = Math.max(0, S.floors*S.block.h - (S.arena.h*0.45));
-      tower.style.transform = `translateX(-50%) rotate(${S.tilt.toFixed(3)}deg) translateY(${-S.camY}px)`;
-
-      // Prepare next active block
-      active.style.display='none'; active.style.opacity='1';
-      S.lastX = x; // new target center is last placed
-      spawnActive();
-      setHUD();
-
-      // Collapse if too tilted
-      if(Math.abs(S.tilt) >= S.tiltLimit){
-        return endGame('Menara terlalu miring!');
-      }
-    }
-
-    function finishMiss(){
-      S.lives -= 1; S.combo = 1; setHUD();
-      floatMsg('-1 ❤', '#fecaca');
-      active.style.display='none'; active.style.opacity='1';
-      spawnActive();
-      if(S.lives <= 0) return endGame('Kehabisan nyawa.');
-      // sedikit turunkan kecepatan agar pulih
-      S.swing.speed = Math.max(0.95, S.swing.speed - 0.05);
-    }
-
-    function endGame(reason){
-      S.playing=false;
-      ui.over.style.display='';
-      ui.summary.innerHTML = `Lantai: <b>${S.floors}</b> • Populasi: <b>${S.pop}</b><br><span style="color:var(--muted)">${reason}</span>`;
-      localStorage.setItem('tb_high', String(Math.max(S.pop, S.high)));
-    }
-
-    function reset(full=true){
-      S.playing=false; S.paused=false;
-      S.floors=0; S.pop=0; S.combo=1; S.lives=3; S.tilt=0; S.camY=0;
-      S.swing.amp=120; S.swing.speed=1.1; S.swing.t=0;
-      S.lastX = S.arena.w/2;
-      tower.innerHTML='';
-      tower.style.transform = 'translateX(-50%) rotate(0deg) translateY(0)';
-      active.style.display='none'; active.style.opacity='1';
-      ui.over.style.display='none';
-      setHUD();
-      if(full){ ui.start.style.display=''; }
-    }
-
-    function start(){
-      reset(false);
-      ui.start.style.display='none';
-      S.playing=true; S.paused=false; setHUD();
-      spawnActive();
-      requestAnimationFrame(loop);
-    }
-
-    function loop(ts){
-      if(!S.playing){ return; }
-      if(S.paused){ requestAnimationFrame(loop); return; }
-      // swing time
-      S.swing.t += S.swing.speed * 0.035;
-      updateCrane();
-      // natural sway & damping
-      const sway = Math.sin(S.swing.t*S.swaySpd) * S.swayAmp;
-      S.tilt *= S.tiltSpring; S.tilt += sway*0.02; // tiny drift
-      tower.style.transform = `translateX(-50%) rotate(${S.tilt.toFixed(3)}deg) translateY(${-S.camY}px)`;
-      requestAnimationFrame(loop);
-    }
-
-    // Controls
-    ui.btn.start.addEventListener('click', start);
-    ui.btn.restart.addEventListener('click', start);
-    ui.btn.home.addEventListener('click', ()=> reset(true));
-    ui.btn.pause.addEventListener('click', ()=>{ if(!S.playing||S.paused) return; S.paused=true; ui.btn.pause.disabled=true; ui.btn.resume.disabled=false; });
-    ui.btn.resume.addEventListener('click', ()=>{ if(!S.playing||!S.paused) return; S.paused=false; ui.btn.pause.disabled=false; ui.btn.resume.disabled=true; });
-    ui.btn.reset.addEventListener('click', ()=> reset(true));
-
-    arena.addEventListener('pointerdown', drop);
-    window.addEventListener('keydown', (e)=>{ if(e.key===' '){ e.preventDefault(); drop(); } });
-
-    // Boot
-    reset(true);
-  })();
-  </script>
-</body>
+        
+        // Show current question
+        function showQuestion() {
+            const question = questions[currentQuestionIndex];
+            document.getElementById('questionEmoji').textContent = question.emoji;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('progressText').textContent = `${currentQuestionIndex + 1}/30`;
+            document.getElementById('progressBar').style.width = `${((currentQuestionIndex + 1) / 30) * 100}%`;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-button w-full p-4 text-left bg-white border-2 border-green-200 rounded-lg hover:border-green-400 transition-all';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+            
+            document.getElementById('nextButton').classList.add('hidden');
+            answered = false;
+            
+            updatePlantProgress();
+        }
+        
+        // Handle answer selection
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const question = questions[currentQuestionIndex];
+            const buttons = document.querySelectorAll('.option-button');
+            
+            buttons.forEach((button, index) => {
+                if (index === question.correct) {
+                    button.classList.add('correct');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    button.classList.add('incorrect');
+                }
+                button.disabled = true;
+            });
+            
+            if (selectedIndex === question.correct) {
+                score++;
+                document.getElementById('score').textContent = score;
+                createFloatingLeaves();
+            }
+            
+            document.getElementById('nextButton').classList.remove('hidden');
+        }
+        
+        // Create floating leaves animation
+        function createFloatingLeaves() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const leaf = document.createElement('div');
+                    leaf.className = 'floating-leaf';
+                    leaf.textContent = '🍃';
+                    leaf.style.left = Math.random() * 100 + '%';
+                    document.body.appendChild(leaf);
+                    
+                    setTimeout(() => {
+                        leaf.remove();
+                    }, 3000);
+                }, i * 200);
+            }
+        }
+        
+        // Update plant progress based on score
+        function updatePlantProgress() {
+            const progress = Math.floor((score / 30) * 3);
+            const plantElement = document.getElementById('plantProgress');
+            const plantText = document.getElementById('plantText');
+            
+            if (progress === 0) {
+                plantElement.textContent = '🌱';
+                plantText.textContent = 'Tanaman Anda sedang tumbuh!';
+            } else if (progress === 1) {
+                plantElement.textContent = '🌿';
+                plantText.textContent = 'Tanaman Anda berkembang pesat!';
+            } else {
+                plantElement.textContent = '🌳';
+                plantText.textContent = 'Tanaman Anda sudah besar!';
+            }
+        }
+        
+        // Move to next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex >= 30) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        }
+        
+        // Show final results
+        function showResults() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+            
+            document.getElementById('finalScore').textContent = score;
+            
+            let resultMessage = '';
+            let finalPlant = '';
+            
+            if (score >= 25) {
+                resultMessage = '🌟 Luar biasa! Anda adalah ahli biologi sejati!';
+                finalPlant = '🌳';
+            } else if (score >= 20) {
+                resultMessage = '👏 Bagus sekali! Pengetahuan biologi Anda sangat baik!';
+                finalPlant = '🌿';
+            } else if (score >= 15) {
+                resultMessage = '👍 Cukup baik! Terus belajar untuk menjadi lebih baik!';
+                finalPlant = '🌱';
+            } else {
+                resultMessage = '💪 Jangan menyerah! Belajar lagi dan coba sekali lagi!';
+                finalPlant = '🌱';
+            }
+            
+            document.getElementById('resultMessage').textContent = resultMessage;
+            document.getElementById('finalPlant').textContent = finalPlant;
+            
+            // Celebration animation
+            setTimeout(() => {
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        createFloatingLeaves();
+                    }, i * 100);
+                }
+            }, 500);
+        }
+        
+        // Restart quiz with same difficulty
+        function restartQuiz() {
+            startQuiz(currentLevel);
+            document.getElementById('resultsScreen').classList.add('hidden');
+        }
+        
+        // Change difficulty level
+        function changeDifficulty() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('levelSelection').classList.remove('hidden');
+        }
+        
+        // Initialize the app
+        createFloatingCells();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4abbf13774e66',t:'MTc1NzczNTMyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
