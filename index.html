@@ -8,187 +8,353 @@
     <style>
         @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
         }
         
         @keyframes floatLeaves {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+            0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 1; }
+            50% { transform: translateY(50vh) rotate(180deg) scale(1.2); opacity: 0.8; }
+            100% { transform: translateY(-100px) rotate(360deg) scale(0.8); opacity: 0; }
         }
         
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.15); }
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6), 0 0 60px rgba(59, 130, 246, 0.4); }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1) rotate(180deg); opacity: 1; }
         }
         
         .floating-cell {
-            animation: float 4s ease-in-out infinite;
+            animation: float 6s ease-in-out infinite;
             position: absolute;
-            font-size: 1.5rem;
-            opacity: 0.3;
+            font-size: 2rem;
+            opacity: 0.4;
+            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.3));
         }
         
         .floating-leaf {
-            animation: floatLeaves 3s linear;
+            animation: floatLeaves 4s ease-out;
             position: fixed;
-            font-size: 2rem;
+            font-size: 2.5rem;
             pointer-events: none;
             z-index: 1000;
+            filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.6));
         }
         
         .progress-plant {
-            animation: pulse 2s ease-in-out infinite;
+            animation: pulse 2.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.5));
         }
         
         .question-card {
-            background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 100%);
-            border: 2px solid #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #f0f9ff 50%, #fef3ff 100%);
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            animation: glow 3s ease-in-out infinite;
+        }
+        
+        .question-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            padding: 3px;
+            background: linear-gradient(135deg, #10b981, #3b82f6, #8b5cf6);
+            border-radius: inherit;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+            z-index: -1;
         }
         
         .option-button {
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+            transition: left 0.5s;
         }
         
         .option-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3), 0 0 20px rgba(59, 130, 246, 0.2);
+            border-color: #10b981;
+        }
+        
+        .option-button:hover::before {
+            left: 100%;
         }
         
         .correct {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, #10b981, #059669, #047857);
             color: white;
+            animation: slideIn 0.5s ease-out;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
         }
         
         .incorrect {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
+            background: linear-gradient(135deg, #ef4444, #dc2626, #b91c1c);
             color: white;
+            animation: slideIn 0.5s ease-out;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+        }
+        
+        .level-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .level-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+            transition: left 0.6s;
+        }
+        
+        .level-card:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.3), 0 0 25px rgba(59, 130, 246, 0.2);
+            border-color: #10b981;
+        }
+        
+        .level-card:hover::before {
+            left: 100%;
+        }
+        
+        .sparkle {
+            position: absolute;
+            animation: sparkle 2s ease-in-out infinite;
+            font-size: 1rem;
+            color: #fbbf24;
+        }
+        
+        .progress-bar-container {
+            background: linear-gradient(90deg, #e2e8f0, #cbd5e1);
+            border-radius: 50px;
+            padding: 2px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6);
+            border-radius: 50px;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+        
+        .score-badge {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1), 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+        
+        .digital-badge {
+            background: linear-gradient(135deg, #10b981, #3b82f6, #8b5cf6);
+            animation: glow 2s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .digital-badge::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: sparkle 3s linear infinite;
         }
     </style>
 </head>
-<body class="h-screen bg-gradient-to-br from-green-50 via-blue-50 to-emerald-50 relative overflow-hidden">
+<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 relative overflow-hidden">
     <!-- Floating Background Cells -->
     <div id="floatingCells"></div>
     
     <!-- Main Container -->
-    <div class="h-full flex flex-col px-6 py-4 relative z-10 max-w-md mx-auto">
+    <div class="min-h-screen flex flex-col px-4 py-6 relative z-10 max-w-6xl mx-auto lg:px-8">
         <!-- Header -->
-        <div class="text-center mb-4 flex-shrink-0">
-            <h1 class="text-2xl font-bold text-green-800 mb-1">🔬 Kuis Biologi 🧬</h1>
-            <p class="text-sm text-blue-700">Jelajahi dunia biologi!</p>
+        <div class="text-center mb-8 flex-shrink-0 relative">
+            <div class="sparkle" style="top: 10%; left: 20%; animation-delay: 0s;">✨</div>
+            <div class="sparkle" style="top: 15%; right: 25%; animation-delay: 1s;">⭐</div>
+            <div class="sparkle" style="bottom: 10%; left: 30%; animation-delay: 2s;">💫</div>
+            <h1 class="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-3 filter drop-shadow-lg">
+                🔬 Kuis Biologi Interaktif 🧬
+            </h1>
+            <p class="text-lg lg:text-xl text-blue-700 font-medium">Jelajahi dunia biologi dengan teknologi canggih!</p>
         </div>
         
         <!-- Level Selection Screen -->
         <div id="levelSelection" class="flex-1 flex flex-col">
-            <div class="text-center mb-4 flex-shrink-0">
-                <h2 class="text-lg font-bold text-green-700 mb-3">🌱 Pilih Tingkat Kesulitan 🌱</h2>
+            <div class="text-center mb-8 flex-shrink-0">
+                <h2 class="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-4">
+                    🌱 Pilih Tingkat Kesulitan 🌱
+                </h2>
+                <p class="text-gray-600 text-lg">Sesuaikan dengan kemampuan Anda</p>
             </div>
-            <div class="flex-1 flex flex-col gap-3 justify-center">
-                <div class="question-card p-4 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('mudah')">
-                    <div class="flex items-center">
-                        <div class="text-3xl mr-4">🌱</div>
-                        <div>
-                            <h3 class="text-lg font-bold text-green-700">Mudah</h3>
-                            <p class="text-sm text-gray-600">Konsep dasar biologi</p>
+            <div class="flex-1 grid md:grid-cols-3 gap-6 lg:gap-8 items-center">
+                <div class="level-card p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('mudah')">
+                    <div class="text-center">
+                        <div class="text-6xl lg:text-7xl mb-4 progress-plant">🌱</div>
+                        <h3 class="text-xl lg:text-2xl font-bold text-green-700 mb-2">Mudah</h3>
+                        <p class="text-gray-600 mb-4">Konsep dasar biologi untuk pemula</p>
+                        <div class="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
+                            30 Soal Pilihan Ganda
                         </div>
                     </div>
                 </div>
-                <div class="question-card p-4 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('sedang')">
-                    <div class="flex items-center">
-                        <div class="text-3xl mr-4">🌿</div>
-                        <div>
-                            <h3 class="text-lg font-bold text-green-700">Sedang</h3>
-                            <p class="text-sm text-gray-600">Pemahaman mendalam</p>
+                <div class="level-card p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('sedang')">
+                    <div class="text-center">
+                        <div class="text-6xl lg:text-7xl mb-4 progress-plant">🌿</div>
+                        <h3 class="text-xl lg:text-2xl font-bold text-blue-700 mb-2">Sedang</h3>
+                        <p class="text-gray-600 mb-4">Pemahaman mendalam untuk siswa aktif</p>
+                        <div class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
+                            30 Soal Menantang
                         </div>
                     </div>
                 </div>
-                <div class="question-card p-4 rounded-xl cursor-pointer hover:scale-105 transition-transform" onclick="startQuiz('sulit')">
-                    <div class="flex items-center">
-                        <div class="text-3xl mr-4">🌳</div>
-                        <div>
-                            <h3 class="text-lg font-bold text-green-700">Sulit</h3>
-                            <p class="text-sm text-gray-600">Tantangan ahli biologi</p>
+                <div class="level-card p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('sulit')">
+                    <div class="text-center">
+                        <div class="text-6xl lg:text-7xl mb-4 progress-plant">🌳</div>
+                        <h3 class="text-xl lg:text-2xl font-bold text-purple-700 mb-2">Sulit</h3>
+                        <p class="text-gray-600 mb-4">Tantangan untuk calon ahli biologi</p>
+                        <div class="bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium">
+                            30 Soal Expert
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="flex-shrink-0 h-8"></div>
         </div>
         
         <!-- Quiz Screen -->
         <div id="quizScreen" class="hidden flex-1 flex flex-col">
             <!-- Progress Bar -->
-            <div class="mb-3 flex-shrink-0">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs font-medium text-green-700">Kemajuan</span>
-                    <span class="text-xs font-medium text-green-700" id="progressText">1/30</span>
+            <div class="mb-6 flex-shrink-0">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-lg font-bold text-green-700">Kemajuan Pembelajaran</span>
+                    <span class="text-lg font-bold text-blue-600" id="progressText">1/30</span>
                 </div>
-                <div class="w-full bg-green-200 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-500" id="progressBar" style="width: 3.33%"></div>
+                <div class="progress-bar-container h-4">
+                    <div class="progress-bar h-full transition-all duration-500" id="progressBar" style="width: 3.33%"></div>
                 </div>
             </div>
             
             <!-- Plant Progress & Score -->
-            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+            <div class="grid grid-cols-3 gap-4 mb-6 flex-shrink-0">
                 <div class="text-center">
-                    <div class="text-4xl progress-plant" id="plantProgress">🌱</div>
-                    <p class="text-xs text-green-600 mt-1" id="plantText">Sedang tumbuh!</p>
+                    <div class="text-6xl lg:text-7xl progress-plant mb-2" id="plantProgress">🌱</div>
+                    <p class="text-sm lg:text-base text-green-600 font-medium" id="plantText">Sedang tumbuh!</p>
                 </div>
-                <div class="bg-white rounded-full px-4 py-2 shadow-lg">
-                    <span class="text-sm font-bold text-green-700">Skor: </span>
-                    <span class="text-sm font-bold text-blue-600" id="score">0</span>
-                    <span class="text-sm text-green-600 ml-1">🏆</span>
+                <div class="text-center">
+                    <div class="score-badge rounded-2xl px-6 py-4">
+                        <div class="text-2xl lg:text-3xl font-bold text-blue-600 mb-1" id="score">0</div>
+                        <p class="text-sm text-gray-600">Skor Benar</p>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl lg:text-5xl mb-2">🏆</div>
+                    <p class="text-sm lg:text-base text-purple-600 font-medium">Target: 25/30</p>
                 </div>
             </div>
             
             <!-- Question Card -->
-            <div class="question-card p-4 rounded-xl mb-4 flex-1 flex flex-col">
-                <div class="text-center mb-4 flex-shrink-0">
-                    <div class="text-2xl mb-2" id="questionEmoji">🦠</div>
-                    <h3 class="text-base font-bold text-green-800" id="questionText"></h3>
+            <div class="question-card p-6 lg:p-8 rounded-2xl mb-6 flex-1 flex flex-col">
+                <div class="text-center mb-6 flex-shrink-0">
+                    <div class="text-5xl lg:text-6xl mb-4 progress-plant" id="questionEmoji">🦠</div>
+                    <h3 class="text-xl lg:text-2xl font-bold text-gray-800 leading-relaxed" id="questionText"></h3>
                 </div>
                 
-                <div class="flex-1 flex flex-col gap-2 justify-center" id="optionsContainer"></div>
+                <div class="flex-1 grid gap-4 lg:gap-6" id="optionsContainer"></div>
             </div>
             
             <!-- Next Button -->
-            <div class="text-center flex-shrink-0 mb-4">
-                <button id="nextButton" class="hidden bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-2 rounded-full font-bold hover:from-green-600 hover:to-blue-600 transition-all text-sm" onclick="nextQuestion()">
-                    Soal Berikutnya 🌿
+            <div class="text-center flex-shrink-0">
+                <button id="nextButton" class="hidden bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-all shadow-2xl" onclick="nextQuestion()">
+                    Lanjut ke Soal Berikutnya 🚀
                 </button>
             </div>
         </div>
         
         <!-- Results Screen -->
-        <div id="resultsScreen" class="hidden flex-1 flex flex-col">
-            <div class="question-card p-6 rounded-xl flex-1 flex flex-col justify-center text-center">
-                <div class="text-4xl mb-3">🏆</div>
-                <h2 class="text-xl font-bold text-green-800 mb-3">Selamat!</h2>
-                <div class="text-5xl mb-4" id="finalPlant">🌳</div>
+        <div id="resultsScreen" class="hidden flex-1 flex flex-col justify-center">
+            <div class="question-card p-8 lg:p-12 rounded-3xl text-center relative overflow-hidden">
+                <!-- Celebration Elements -->
+                <div class="sparkle" style="top: 10%; left: 15%; animation-delay: 0s;">🎉</div>
+                <div class="sparkle" style="top: 20%; right: 20%; animation-delay: 0.5s;">🎊</div>
+                <div class="sparkle" style="bottom: 20%; left: 25%; animation-delay: 1s;">✨</div>
+                <div class="sparkle" style="bottom: 15%; right: 15%; animation-delay: 1.5s;">🌟</div>
+                
+                <div class="text-6xl lg:text-7xl mb-6 progress-plant">🏆</div>
+                <h2 class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">
+                    Selamat! Misi Selesai!
+                </h2>
+                <div class="text-8xl lg:text-9xl mb-8 progress-plant" id="finalPlant">🌳</div>
                 
                 <!-- Digital Badge -->
-                <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-4 rounded-xl mb-4 mx-auto">
-                    <div class="text-2xl mb-1">🔬🧪🧬</div>
-                    <h3 class="text-base font-bold">Ahli Biologi Junior</h3>
-                    <p class="text-xs opacity-90">Lencana Digital</p>
+                <div class="digital-badge text-white p-6 lg:p-8 rounded-3xl mb-8 mx-auto max-w-md relative z-10">
+                    <div class="text-4xl lg:text-5xl mb-3">🔬🧪🧬</div>
+                    <h3 class="text-xl lg:text-2xl font-bold mb-2">Ahli Biologi Junior</h3>
+                    <p class="text-sm lg:text-base opacity-90">Lencana Digital Resmi</p>
+                    <div class="text-xs lg:text-sm mt-2 opacity-75">Certified by Bio-Quiz System</div>
                 </div>
                 
-                <div class="text-lg font-bold text-green-700 mb-3">
-                    Skor Akhir: <span id="finalScore" class="text-blue-600">0</span>/30
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="score-badge rounded-2xl p-4">
+                        <div class="text-3xl lg:text-4xl font-bold text-blue-600 mb-2" id="finalScore">0</div>
+                        <p class="text-gray-600">Skor Akhir</p>
+                    </div>
+                    <div class="score-badge rounded-2xl p-4">
+                        <div class="text-3xl lg:text-4xl font-bold text-green-600 mb-2">30</div>
+                        <p class="text-gray-600">Total Soal</p>
+                    </div>
+                    <div class="score-badge rounded-2xl p-4">
+                        <div class="text-3xl lg:text-4xl font-bold text-purple-600 mb-2" id="accuracy">0%</div>
+                        <p class="text-gray-600">Akurasi</p>
+                    </div>
                 </div>
                 
-                <div class="text-sm text-gray-700 mb-4" id="resultMessage"></div>
+                <div class="text-lg lg:text-xl text-gray-700 mb-8 font-medium" id="resultMessage"></div>
                 
-                <div class="flex gap-2 justify-center">
-                    <button class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-full font-bold hover:from-green-600 hover:to-blue-600 transition-all text-sm" onclick="restartQuiz()">
-                        Main Lagi 🔄
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-all shadow-2xl" onclick="restartQuiz()">
+                        🔄 Main Lagi dengan Level Sama
                     </button>
                     
-                    <button class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full font-bold hover:from-blue-600 hover:to-purple-600 transition-all text-sm" onclick="changeDifficulty()">
-                        Ganti Tingkat 📚
+                    <button class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-all shadow-2xl" onclick="changeDifficulty()">
+                        📚 Pilih Level Berbeda
                     </button>
                 </div>
             </div>
-            <div class="flex-shrink-0 h-8"></div>
         </div>
     </div>
 
@@ -302,16 +468,16 @@
         // Initialize floating cells
         function createFloatingCells() {
             const container = document.getElementById('floatingCells');
-            const cells = ['🔬', '🦠', '🧫', '🧬'];
+            const cells = ['🔬', '🦠', '🧫', '🧬', '🌱', '🌿', '🌳', '🔍', '⚗️', '🧪'];
             
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 25; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'floating-cell';
                 cell.textContent = cells[Math.floor(Math.random() * cells.length)];
                 cell.style.left = Math.random() * 100 + '%';
                 cell.style.top = Math.random() * 100 + '%';
-                cell.style.animationDelay = Math.random() * 4 + 's';
-                cell.style.animationDuration = (3 + Math.random() * 4) + 's';
+                cell.style.animationDelay = Math.random() * 6 + 's';
+                cell.style.animationDuration = (4 + Math.random() * 6) + 's';
                 container.appendChild(cell);
             }
         }
@@ -343,7 +509,7 @@
             
             question.options.forEach((option, index) => {
                 const button = document.createElement('button');
-                button.className = 'option-button w-full p-3 text-left bg-white border-2 border-green-200 rounded-lg hover:border-green-400 transition-all text-sm';
+                button.className = 'option-button w-full p-4 lg:p-6 text-left rounded-2xl text-base lg:text-lg font-medium';
                 button.textContent = option;
                 button.onclick = () => selectAnswer(index);
                 optionsContainer.appendChild(button);
@@ -434,20 +600,24 @@
             
             document.getElementById('finalScore').textContent = score;
             
+            // Calculate accuracy
+            const accuracy = Math.round((score / 30) * 100);
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            
             let resultMessage = '';
             let finalPlant = '';
             
             if (score >= 25) {
-                resultMessage = '🌟 Luar biasa! Anda adalah ahli biologi sejati!';
+                resultMessage = '🌟 Luar biasa! Anda adalah ahli biologi sejati! Penguasaan materi sangat sempurna!';
                 finalPlant = '🌳';
             } else if (score >= 20) {
-                resultMessage = '👏 Bagus sekali! Pengetahuan biologi Anda sangat baik!';
+                resultMessage = '👏 Bagus sekali! Pengetahuan biologi Anda sangat baik! Terus pertahankan semangat belajar!';
                 finalPlant = '🌿';
             } else if (score >= 15) {
-                resultMessage = '👍 Cukup baik! Terus belajar untuk menjadi lebih baik!';
+                resultMessage = '👍 Cukup baik! Anda sudah memahami konsep dasar. Terus belajar untuk menjadi lebih baik!';
                 finalPlant = '🌱';
             } else {
-                resultMessage = '💪 Jangan menyerah! Belajar lagi dan coba sekali lagi!';
+                resultMessage = '💪 Jangan menyerah! Setiap ahli pernah memulai dari awal. Belajar lagi dan coba sekali lagi!';
                 finalPlant = '🌱';
             }
             
@@ -479,5 +649,5 @@
         // Initialize the app
         createFloatingCells();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4b8d602cafdf7',t:'MTc1NzczNTg2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4c23726e6fdf7',t:'MTc1NzczNjI0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
