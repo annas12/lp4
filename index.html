@@ -222,34 +222,40 @@
                 </h2>
                 <p class="text-gray-600 text-lg">Sesuaikan dengan kemampuan Anda</p>
             </div>
-            <div class="flex-1 grid md:grid-cols-3 gap-6 lg:gap-8 items-center">
-                <div class="level-card p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('mudah')">
-                    <div class="text-center">
-                        <div class="text-6xl lg:text-7xl mb-4 progress-plant">🌱</div>
-                        <h3 class="text-xl lg:text-2xl font-bold text-green-700 mb-2">Mudah</h3>
-                        <p class="text-gray-600 mb-4">Konsep dasar biologi untuk pemula</p>
-                        <div class="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
-                            30 Soal Pilihan Ganda
+            <div class="flex-1 flex flex-col gap-4 justify-center max-h-[60vh] overflow-y-auto">
+                <div class="level-card p-4 sm:p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('mudah')">
+                    <div class="flex items-center sm:flex-col sm:text-center">
+                        <div class="text-4xl sm:text-6xl lg:text-7xl mr-4 sm:mr-0 sm:mb-3 progress-plant">🌱</div>
+                        <div class="flex-1 sm:flex-none">
+                            <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Mudah</h3>
+                            <p class="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">Konsep dasar biologi untuk pemula</p>
+                            <div class="bg-green-100 text-green-700 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium inline-block">
+                                30 Soal Pilihan Ganda
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="level-card p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('sedang')">
-                    <div class="text-center">
-                        <div class="text-6xl lg:text-7xl mb-4 progress-plant">🌿</div>
-                        <h3 class="text-xl lg:text-2xl font-bold text-blue-700 mb-2">Sedang</h3>
-                        <p class="text-gray-600 mb-4">Pemahaman mendalam untuk siswa aktif</p>
-                        <div class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
-                            30 Soal Menantang
+                <div class="level-card p-4 sm:p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('sedang')">
+                    <div class="flex items-center sm:flex-col sm:text-center">
+                        <div class="text-4xl sm:text-6xl lg:text-7xl mr-4 sm:mr-0 sm:mb-3 progress-plant">🌿</div>
+                        <div class="flex-1 sm:flex-none">
+                            <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-blue-700 mb-1 sm:mb-2">Sedang</h3>
+                            <p class="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">Pemahaman mendalam untuk siswa aktif</p>
+                            <div class="bg-blue-100 text-blue-700 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium inline-block">
+                                30 Soal Menantang
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="level-card p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('sulit')">
-                    <div class="text-center">
-                        <div class="text-6xl lg:text-7xl mb-4 progress-plant">🌳</div>
-                        <h3 class="text-xl lg:text-2xl font-bold text-purple-700 mb-2">Sulit</h3>
-                        <p class="text-gray-600 mb-4">Tantangan untuk calon ahli biologi</p>
-                        <div class="bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium">
-                            30 Soal Expert
+                <div class="level-card p-4 sm:p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('sulit')">
+                    <div class="flex items-center sm:flex-col sm:text-center">
+                        <div class="text-4xl sm:text-6xl lg:text-7xl mr-4 sm:mr-0 sm:mb-3 progress-plant">🌳</div>
+                        <div class="flex-1 sm:flex-none">
+                            <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-purple-700 mb-1 sm:mb-2">Sulit</h3>
+                            <p class="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">Tantangan untuk calon ahli biologi</p>
+                            <div class="bg-purple-100 text-purple-700 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium inline-block">
+                                30 Soal Expert
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -649,5 +655,5 @@
         // Initialize the app
         createFloatingCells();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4c23726e6fdf7',t:'MTc1NzczNjI0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4d04826394030',t:'MTc1NzczNjgyMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
