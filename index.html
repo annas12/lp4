@@ -1,659 +1,464 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuis Biologi Interaktif - SMP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(180deg); }
-        }
-        
-        @keyframes floatLeaves {
-            0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 1; }
-            50% { transform: translateY(50vh) rotate(180deg) scale(1.2); opacity: 0.8; }
-            100% { transform: translateY(-100px) rotate(360deg) scale(0.8); opacity: 0; }
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-        }
-        
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-            50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6), 0 0 60px rgba(59, 130, 246, 0.4); }
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        @keyframes sparkle {
-            0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
-            50% { transform: scale(1) rotate(180deg); opacity: 1; }
-        }
-        
-        .floating-cell {
-            animation: float 6s ease-in-out infinite;
-            position: absolute;
-            font-size: 2rem;
-            opacity: 0.4;
-            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.3));
-        }
-        
-        .floating-leaf {
-            animation: floatLeaves 4s ease-out;
-            position: fixed;
-            font-size: 2.5rem;
-            pointer-events: none;
-            z-index: 1000;
-            filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.6));
-        }
-        
-        .progress-plant {
-            animation: pulse 2.5s ease-in-out infinite;
-            filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.5));
-        }
-        
-        .question-card {
-            background: linear-gradient(135deg, #ecfdf5 0%, #f0f9ff 50%, #fef3ff 100%);
-            border: 3px solid transparent;
-            background-clip: padding-box;
-            position: relative;
-            animation: glow 3s ease-in-out infinite;
-        }
-        
-        .question-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            padding: 3px;
-            background: linear-gradient(135deg, #10b981, #3b82f6, #8b5cf6);
-            border-radius: inherit;
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: xor;
-            z-index: -1;
-        }
-        
-        .option-button {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border: 2px solid #e2e8f0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .option-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
-            transition: left 0.5s;
-        }
-        
-        .option-button:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3), 0 0 20px rgba(59, 130, 246, 0.2);
-            border-color: #10b981;
-        }
-        
-        .option-button:hover::before {
-            left: 100%;
-        }
-        
-        .correct {
-            background: linear-gradient(135deg, #10b981, #059669, #047857);
-            color: white;
-            animation: slideIn 0.5s ease-out;
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
-        }
-        
-        .incorrect {
-            background: linear-gradient(135deg, #ef4444, #dc2626, #b91c1c);
-            color: white;
-            animation: slideIn 0.5s ease-out;
-            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
-        }
-        
-        .level-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border: 2px solid #e2e8f0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .level-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
-            transition: left 0.6s;
-        }
-        
-        .level-card:hover {
-            transform: translateY(-6px) scale(1.03);
-            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.3), 0 0 25px rgba(59, 130, 246, 0.2);
-            border-color: #10b981;
-        }
-        
-        .level-card:hover::before {
-            left: 100%;
-        }
-        
-        .sparkle {
-            position: absolute;
-            animation: sparkle 2s ease-in-out infinite;
-            font-size: 1rem;
-            color: #fbbf24;
-        }
-        
-        .progress-bar-container {
-            background: linear-gradient(90deg, #e2e8f0, #cbd5e1);
-            border-radius: 50px;
-            padding: 2px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .progress-bar {
-            background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6);
-            border-radius: 50px;
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
-        }
-        
-        .score-badge {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border: 2px solid #e2e8f0;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1), 0 0 20px rgba(16, 185, 129, 0.2);
-        }
-        
-        .digital-badge {
-            background: linear-gradient(135deg, #10b981, #3b82f6, #8b5cf6);
-            animation: glow 2s ease-in-out infinite;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .digital-badge::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            animation: sparkle 3s linear infinite;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Kuis Biologi Interaktif - SMP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --ring: 2px; }
+    /* ===== Animations (with motion-safety) ===== */
+    @keyframes float { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-30px) rotate(180deg)} }
+    @keyframes floatLeaves { 0%{ transform:translateY(100vh) rotate(0) scale(.5); opacity:1 } 50%{ transform:translateY(50vh) rotate(180deg) scale(1.2); opacity:.8 } 100%{ transform:translateY(-100px) rotate(360deg) scale(.8); opacity:0 } }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+    @keyframes glow { 0%,100%{ box-shadow:0 0 20px rgba(16,185,129,.3) } 50%{ box-shadow:0 0 40px rgba(16,185,129,.6), 0 0 60px rgba(59,130,246,.4) } }
+    @keyframes slideIn { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+    @keyframes sparkle { 0%,100%{ transform:scale(0) rotate(0); opacity:0 } 50%{ transform:scale(1) rotate(180deg); opacity:1 } }
+
+    /* Motion reduce support */
+    @media (prefers-reduced-motion: reduce){
+      .floating-cell, .floating-leaf, .progress-plant, .question-card, .digital-badge, .sparkle { animation: none !important; }
+      .option-button, .level-card { transition: none !important; }
+    }
+
+    /* ===== Decorative bits ===== */
+    .floating-cell{ animation:float 6s ease-in-out infinite; position:absolute; font-size:clamp(1.25rem, 2vw, 2rem); opacity:.35; filter:drop-shadow(0 0 10px rgba(16,185,129,.3)); will-change:transform }
+    .floating-leaf{ animation:floatLeaves 4s ease-out; position:fixed; font-size:clamp(1.5rem, 6vw, 2.5rem); pointer-events:none; z-index:1000; filter:drop-shadow(0 0 8px rgba(34,197,94,.6)); will-change:transform }
+    .progress-plant{ animation:pulse 2.5s ease-in-out infinite; filter:drop-shadow(0 0 15px rgba(34,197,94,.5)) }
+
+    /* ===== Cards / buttons ===== */
+    .question-card{ background:linear-gradient(135deg,#ecfdf5 0%,#f0f9ff 50%,#fef3ff 100%); border:3px solid transparent; background-clip:padding-box; position:relative; animation:glow 3s ease-in-out infinite }
+    .question-card::before{ content:""; position:absolute; inset:0; padding:3px; background:linear-gradient(135deg,#10b981,#3b82f6,#8b5cf6); border-radius:inherit; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask-composite:exclude; z-index:-1 }
+
+    .option-button{ transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease; background:linear-gradient(135deg,#fff 0%,#f8fafc 100%); border:2px solid #e2e8f0; position:relative; overflow:hidden; touch-action:manipulation; min-height:52px }
+    .option-button::before{ content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(16,185,129,.1),transparent); transition:left .5s }
+    @media (hover:hover){ .option-button:hover{ transform:translateY(-3px) scale(1.01); box-shadow:0 10px 22px rgba(16,185,129,.25), 0 0 16px rgba(59,130,246,.16); border-color:#10b981 } .option-button:hover::before{ left:100% } }
+    .option-button:active{ transform:scale(.99) }
+    .option-button:focus-visible{ outline:none; box-shadow:0 0 0 var(--ring) #10b98180 }
+
+    .correct{ background:linear-gradient(135deg,#10b981,#059669,#047857); color:#fff; animation:slideIn .35s ease-out; box-shadow:0 0 24px rgba(16,185,129,.5) }
+    .incorrect{ background:linear-gradient(135deg,#ef4444,#dc2626,#b91c1c); color:#fff; animation:slideIn .35s ease-out; box-shadow:0 0 24px rgba(239,68,68,.5) }
+
+    .level-card{ background:linear-gradient(135deg,#fff 0%,#f8fafc 100%); border:2px solid #e2e8f0; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; position:relative; overflow:hidden }
+    .level-card::before{ content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(16,185,129,.1),transparent); transition:left .6s }
+    @media (hover:hover){ .level-card:hover{ transform:translateY(-6px) scale(1.02); box-shadow:0 14px 30px rgba(16,185,129,.25), 0 0 20px rgba(59,130,246,.16); border-color:#10b981 } .level-card:hover::before{ left:100% } }
+
+    .sparkle{ position:absolute; animation:sparkle 2s ease-in-out infinite; font-size:1rem; color:#fbbf24 }
+
+    .progress-bar-container{ background:linear-gradient(90deg,#e2e8f0,#cbd5e1); border-radius:50px; padding:2px; box-shadow:inset 0 2px 4px rgba(0,0,0,.08) }
+    .progress-bar{ background:linear-gradient(90deg,#10b981,#3b82f6,#8b5cf6); border-radius:50px; transition:width .4s ease; box-shadow:0 0 18px rgba(16,185,129,.45) }
+
+    .score-badge{ background:linear-gradient(135deg,#fff 0%,#f8fafc 100%); border:2px solid #e2e8f0; box-shadow:0 8px 20px rgba(0,0,0,.08), 0 0 16px rgba(16,185,129,.16) }
+
+    .digital-badge{ background:linear-gradient(135deg,#10b981,#3b82f6,#8b5cf6); animation:glow 2s ease-in-out infinite; position:relative; overflow:hidden }
+    .digital-badge::before{ content:""; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:linear-gradient(45deg,transparent,rgba(255,255,255,.12),transparent); animation:sparkle 3s linear infinite }
+
+    /* Layout helpers */
+    .safe-pad{ padding-bottom:env(safe-area-inset-bottom); padding-top:env(safe-area-inset-top); padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right) }
+  </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 relative overflow-hidden">
-    <!-- Floating Background Cells -->
-    <div id="floatingCells"></div>
-    
-    <!-- Main Container -->
-    <div class="min-h-screen flex flex-col px-4 py-6 relative z-10 max-w-6xl mx-auto lg:px-8">
-        <!-- Header -->
-        <div class="text-center mb-8 flex-shrink-0 relative">
-            <div class="sparkle" style="top: 10%; left: 20%; animation-delay: 0s;">✨</div>
-            <div class="sparkle" style="top: 15%; right: 25%; animation-delay: 1s;">⭐</div>
-            <div class="sparkle" style="bottom: 10%; left: 30%; animation-delay: 2s;">💫</div>
-            <h1 class="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-3 filter drop-shadow-lg">
-                🔬 Kuis Biologi Interaktif 🧬
-            </h1>
-            <p class="text-lg lg:text-xl text-blue-700 font-medium">Jelajahi dunia biologi dengan teknologi canggih!</p>
-        </div>
-        
-        <!-- Level Selection Screen -->
-        <div id="levelSelection" class="flex-1 flex flex-col">
-            <div class="text-center mb-8 flex-shrink-0">
-                <h2 class="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-4">
-                    🌱 Pilih Tingkat Kesulitan 🌱
-                </h2>
-                <p class="text-gray-600 text-lg">Sesuaikan dengan kemampuan Anda</p>
-            </div>
-            <div class="flex-1 flex flex-col gap-4 justify-center max-h-[60vh] overflow-y-auto">
-                <div class="level-card p-4 sm:p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('mudah')">
-                    <div class="flex items-center sm:flex-col sm:text-center">
-                        <div class="text-4xl sm:text-6xl lg:text-7xl mr-4 sm:mr-0 sm:mb-3 progress-plant">🌱</div>
-                        <div class="flex-1 sm:flex-none">
-                            <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Mudah</h3>
-                            <p class="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">Konsep dasar biologi untuk pemula</p>
-                            <div class="bg-green-100 text-green-700 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium inline-block">
-                                30 Soal Pilihan Ganda
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="level-card p-4 sm:p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('sedang')">
-                    <div class="flex items-center sm:flex-col sm:text-center">
-                        <div class="text-4xl sm:text-6xl lg:text-7xl mr-4 sm:mr-0 sm:mb-3 progress-plant">🌿</div>
-                        <div class="flex-1 sm:flex-none">
-                            <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-blue-700 mb-1 sm:mb-2">Sedang</h3>
-                            <p class="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">Pemahaman mendalam untuk siswa aktif</p>
-                            <div class="bg-blue-100 text-blue-700 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium inline-block">
-                                30 Soal Menantang
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="level-card p-4 sm:p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('sulit')">
-                    <div class="flex items-center sm:flex-col sm:text-center">
-                        <div class="text-4xl sm:text-6xl lg:text-7xl mr-4 sm:mr-0 sm:mb-3 progress-plant">🌳</div>
-                        <div class="flex-1 sm:flex-none">
-                            <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-purple-700 mb-1 sm:mb-2">Sulit</h3>
-                            <p class="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">Tantangan untuk calon ahli biologi</p>
-                            <div class="bg-purple-100 text-purple-700 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium inline-block">
-                                30 Soal Expert
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Quiz Screen -->
-        <div id="quizScreen" class="hidden flex-1 flex flex-col">
-            <!-- Progress Bar -->
-            <div class="mb-6 flex-shrink-0">
-                <div class="flex justify-between items-center mb-3">
-                    <span class="text-lg font-bold text-green-700">Kemajuan Pembelajaran</span>
-                    <span class="text-lg font-bold text-blue-600" id="progressText">1/30</span>
-                </div>
-                <div class="progress-bar-container h-4">
-                    <div class="progress-bar h-full transition-all duration-500" id="progressBar" style="width: 3.33%"></div>
-                </div>
-            </div>
-            
-            <!-- Plant Progress & Score -->
-            <div class="grid grid-cols-3 gap-4 mb-6 flex-shrink-0">
-                <div class="text-center">
-                    <div class="text-6xl lg:text-7xl progress-plant mb-2" id="plantProgress">🌱</div>
-                    <p class="text-sm lg:text-base text-green-600 font-medium" id="plantText">Sedang tumbuh!</p>
-                </div>
-                <div class="text-center">
-                    <div class="score-badge rounded-2xl px-6 py-4">
-                        <div class="text-2xl lg:text-3xl font-bold text-blue-600 mb-1" id="score">0</div>
-                        <p class="text-sm text-gray-600">Skor Benar</p>
-                    </div>
-                </div>
-                <div class="text-center">
-                    <div class="text-4xl lg:text-5xl mb-2">🏆</div>
-                    <p class="text-sm lg:text-base text-purple-600 font-medium">Target: 25/30</p>
-                </div>
-            </div>
-            
-            <!-- Question Card -->
-            <div class="question-card p-6 lg:p-8 rounded-2xl mb-6 flex-1 flex flex-col">
-                <div class="text-center mb-6 flex-shrink-0">
-                    <div class="text-5xl lg:text-6xl mb-4 progress-plant" id="questionEmoji">🦠</div>
-                    <h3 class="text-xl lg:text-2xl font-bold text-gray-800 leading-relaxed" id="questionText"></h3>
-                </div>
-                
-                <div class="flex-1 grid gap-4 lg:gap-6" id="optionsContainer"></div>
-            </div>
-            
-            <!-- Next Button -->
-            <div class="text-center flex-shrink-0">
-                <button id="nextButton" class="hidden bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-all shadow-2xl" onclick="nextQuestion()">
-                    Lanjut ke Soal Berikutnya 🚀
-                </button>
-            </div>
-        </div>
-        
-        <!-- Results Screen -->
-        <div id="resultsScreen" class="hidden flex-1 flex flex-col justify-center">
-            <div class="question-card p-8 lg:p-12 rounded-3xl text-center relative overflow-hidden">
-                <!-- Celebration Elements -->
-                <div class="sparkle" style="top: 10%; left: 15%; animation-delay: 0s;">🎉</div>
-                <div class="sparkle" style="top: 20%; right: 20%; animation-delay: 0.5s;">🎊</div>
-                <div class="sparkle" style="bottom: 20%; left: 25%; animation-delay: 1s;">✨</div>
-                <div class="sparkle" style="bottom: 15%; right: 15%; animation-delay: 1.5s;">🌟</div>
-                
-                <div class="text-6xl lg:text-7xl mb-6 progress-plant">🏆</div>
-                <h2 class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">
-                    Selamat! Misi Selesai!
-                </h2>
-                <div class="text-8xl lg:text-9xl mb-8 progress-plant" id="finalPlant">🌳</div>
-                
-                <!-- Digital Badge -->
-                <div class="digital-badge text-white p-6 lg:p-8 rounded-3xl mb-8 mx-auto max-w-md relative z-10">
-                    <div class="text-4xl lg:text-5xl mb-3">🔬🧪🧬</div>
-                    <h3 class="text-xl lg:text-2xl font-bold mb-2">Ahli Biologi Junior</h3>
-                    <p class="text-sm lg:text-base opacity-90">Lencana Digital Resmi</p>
-                    <div class="text-xs lg:text-sm mt-2 opacity-75">Certified by Bio-Quiz System</div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="score-badge rounded-2xl p-4">
-                        <div class="text-3xl lg:text-4xl font-bold text-blue-600 mb-2" id="finalScore">0</div>
-                        <p class="text-gray-600">Skor Akhir</p>
-                    </div>
-                    <div class="score-badge rounded-2xl p-4">
-                        <div class="text-3xl lg:text-4xl font-bold text-green-600 mb-2">30</div>
-                        <p class="text-gray-600">Total Soal</p>
-                    </div>
-                    <div class="score-badge rounded-2xl p-4">
-                        <div class="text-3xl lg:text-4xl font-bold text-purple-600 mb-2" id="accuracy">0%</div>
-                        <p class="text-gray-600">Akurasi</p>
-                    </div>
-                </div>
-                
-                <div class="text-lg lg:text-xl text-gray-700 mb-8 font-medium" id="resultMessage"></div>
-                
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button class="bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-all shadow-2xl" onclick="restartQuiz()">
-                        🔄 Main Lagi dengan Level Sama
-                    </button>
-                    
-                    <button class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-all shadow-2xl" onclick="changeDifficulty()">
-                        📚 Pilih Level Berbeda
-                    </button>
-                </div>
-            </div>
-        </div>
+<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 relative overflow-hidden safe-pad">
+  <!-- Floating Background Cells (kept) -->
+  <div id="floatingCells"></div>
+
+  <!-- Main Container -->
+  <div class="min-h-screen flex flex-col px-4 py-6 relative z-10 max-w-6xl mx-auto sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="text-center mb-6 sm:mb-8 flex-shrink-0 relative">
+      <div class="sparkle" style="top:10%; left:20%; animation-delay:0s">✨</div>
+      <div class="sparkle" style="top:15%; right:25%; animation-delay:1s">⭐</div>
+      <div class="sparkle" style="bottom:10%; left:30%; animation-delay:2s">💫</div>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-2 sm:mb-3 drop-shadow">
+        🔬 Kuis Biologi Interaktif 🧬
+      </h1>
+      <p class="text-base sm:text-lg lg:text-xl text-blue-700 font-medium">Jelajahi dunia biologi dengan teknologi canggih!</p>
     </div>
 
-    <script>
-        // Quiz Data
-        const quizData = {
-            mudah: [
-                {emoji: "🦠", question: "Apa unit terkecil dari makhluk hidup?", options: ["Sel", "Jaringan", "Organ", "Organisme"], correct: 0},
-                {emoji: "🌱", question: "Proses pembuatan makanan pada tumbuhan disebut?", options: ["Respirasi", "Fotosintesis", "Transpirasi", "Fermentasi"], correct: 1},
-                {emoji: "🧬", question: "DNA adalah singkatan dari?", options: ["Deoxyribonucleic Acid", "Deoxyribose Acid", "Deoxy Acid", "Ribonucleic Acid"], correct: 0},
-                {emoji: "🦠", question: "Organel yang menghasilkan energi dalam sel adalah?", options: ["Nukleus", "Mitokondria", "Ribosom", "Vakuola"], correct: 1},
-                {emoji: "🌿", question: "Zat hijau daun yang berperan dalam fotosintesis adalah?", options: ["Klorofil", "Karotin", "Xantofil", "Antosianin"], correct: 0},
-                {emoji: "🐅", question: "Hewan yang termasuk mamalia adalah?", options: ["Ikan", "Burung", "Harimau", "Ular"], correct: 2},
-                {emoji: "🦠", question: "Bagian sel yang mengatur keluar masuknya zat adalah?", options: ["Dinding sel", "Membran sel", "Sitoplasma", "Nukleus"], correct: 1},
-                {emoji: "🌱", question: "Gas yang dibutuhkan tumbuhan untuk fotosintesis adalah?", options: ["Oksigen", "Nitrogen", "Karbon dioksida", "Hidrogen"], correct: 2},
-                {emoji: "🐸", question: "Hewan yang mengalami metamorfosis adalah?", options: ["Kucing", "Katak", "Ikan", "Burung"], correct: 1},
-                {emoji: "🧫", question: "Ilmu yang mempelajari tentang sel disebut?", options: ["Histologi", "Sitologi", "Anatomi", "Fisiologi"], correct: 1},
-                {emoji: "🦠", question: "Organel yang berfungsi sebagai pusat kendali sel adalah?", options: ["Mitokondria", "Ribosom", "Nukleus", "Lisosom"], correct: 2},
-                {emoji: "🌿", question: "Hasil fotosintesis berupa?", options: ["Glukosa dan oksigen", "Air dan CO2", "Protein", "Lemak"], correct: 0},
-                {emoji: "🐛", question: "Hewan tidak bertulang belakang disebut?", options: ["Vertebrata", "Invertebrata", "Mamalia", "Reptil"], correct: 1},
-                {emoji: "🌱", question: "Bagian tumbuhan yang berfungsi menyerap air adalah?", options: ["Daun", "Batang", "Akar", "Bunga"], correct: 2},
-                {emoji: "🦠", question: "Sel tumbuhan memiliki ... yang tidak dimiliki sel hewan", options: ["Nukleus", "Mitokondria", "Dinding sel", "Ribosom"], correct: 2},
-                {emoji: "🐟", question: "Ikan bernapas menggunakan?", options: ["Paru-paru", "Insang", "Kulit", "Trakea"], correct: 1},
-                {emoji: "🌿", question: "Proses penguapan air melalui daun disebut?", options: ["Fotosintesis", "Respirasi", "Transpirasi", "Osmosis"], correct: 2},
-                {emoji: "🦅", question: "Ciri khas burung adalah?", options: ["Berbulu dan bertelur", "Menyusui", "Berdarah dingin", "Hidup di air"], correct: 0},
-                {emoji: "🧬", question: "Kromosom terdapat di dalam?", options: ["Sitoplasma", "Mitokondria", "Nukleus", "Ribosom"], correct: 2},
-                {emoji: "🌱", question: "Tumbuhan hijau disebut sebagai?", options: ["Konsumen", "Produsen", "Dekomposer", "Predator"], correct: 1},
-                {emoji: "🦠", question: "Organel yang berfungsi mencerna zat dalam sel adalah?", options: ["Lisosom", "Ribosom", "Vakuola", "Plastida"], correct: 0},
-                {emoji: "🐍", question: "Ular termasuk kelompok hewan?", options: ["Mamalia", "Amfibi", "Reptil", "Aves"], correct: 2},
-                {emoji: "🌿", question: "Stomata berfungsi untuk?", options: ["Fotosintesis", "Pertukaran gas", "Menyerap air", "Reproduksi"], correct: 1},
-                {emoji: "🦠", question: "Ribosom berfungsi untuk?", options: ["Sintesis protein", "Respirasi", "Fotosintesis", "Pencernaan"], correct: 0},
-                {emoji: "🐧", question: "Penguin termasuk kelompok?", options: ["Mamalia", "Reptil", "Aves", "Amfibi"], correct: 2},
-                {emoji: "🌱", question: "Bagian bunga yang berfungsi sebagai alat kelamin jantan adalah?", options: ["Putik", "Benang sari", "Mahkota", "Kelopak"], correct: 1},
-                {emoji: "🦠", question: "Vakuola pada sel tumbuhan berfungsi untuk?", options: ["Sintesis protein", "Menyimpan air", "Respirasi", "Fotosintesis"], correct: 1},
-                {emoji: "🐠", question: "Hewan yang hidup di air dan darat disebut?", options: ["Akuatik", "Terestrial", "Amfibi", "Arboreal"], correct: 2},
-                {emoji: "🌿", question: "Kloroplas hanya terdapat pada?", options: ["Sel hewan", "Sel tumbuhan", "Sel bakteri", "Sel jamur"], correct: 1},
-                {emoji: "🧬", question: "Sifat yang diturunkan dari induk ke keturunan disebut?", options: ["Adaptasi", "Evolusi", "Hereditas", "Mutasi"], correct: 2}
-            ],
-            sedang: [
-                {emoji: "🦠", question: "Organel yang berperan dalam sintesis lemak adalah?", options: ["RE kasar", "RE halus", "Ribosom", "Lisosom"], correct: 1},
-                {emoji: "🌱", question: "Reaksi terang fotosintesis terjadi di?", options: ["Stroma", "Tilakoid", "Sitoplasma", "Nukleus"], correct: 1},
-                {emoji: "🧬", question: "Jumlah kromosom manusia normal adalah?", options: ["44", "46", "48", "50"], correct: 1},
-                {emoji: "🦠", question: "Proses pembelahan sel yang menghasilkan gamet disebut?", options: ["Mitosis", "Meiosis", "Amitosis", "Sitokinesis"], correct: 1},
-                {emoji: "🌿", question: "Enzim yang memecah CO2 dalam fotosintesis adalah?", options: ["Rubisco", "Katalase", "Amilase", "Pepsin"], correct: 0},
-                {emoji: "🐆", question: "Sistem klasifikasi modern menggunakan berapa kingdom?", options: ["3", "5", "6", "7"], correct: 2},
-                {emoji: "🦠", question: "Fase mitosis dimana kromosom berjajar di tengah sel adalah?", options: ["Profase", "Metafase", "Anafase", "Telofase"], correct: 1},
-                {emoji: "🌱", question: "Faktor yang TIDAK mempengaruhi fotosintesis adalah?", options: ["Cahaya", "CO2", "Suhu", "Kelembaban tanah"], correct: 3},
-                {emoji: "🧫", question: "Bakteri yang dapat melakukan fotosintesis adalah?", options: ["E. coli", "Sianobakteri", "Streptococcus", "Lactobacillus"], correct: 1},
-                {emoji: "🦠", question: "Organel yang mengandung DNA selain nukleus adalah?", options: ["Ribosom", "Lisosom", "Mitokondria", "Vakuola"], correct: 2},
-                {emoji: "🌿", question: "Reaksi gelap fotosintesis disebut juga siklus?", options: ["Krebs", "Calvin", "Glikolisis", "Elektron"], correct: 1},
-                {emoji: "🐸", question: "Metamorfosis tidak sempurna terjadi pada?", options: ["Kupu-kupu", "Katak", "Belalang", "Nyamuk"], correct: 2},
-                {emoji: "🦠", question: "Sel yang tidak memiliki membran inti disebut?", options: ["Eukariot", "Prokariot", "Unisel", "Multisel"], correct: 1},
-                {emoji: "🌱", question: "Hormon yang mengatur pertumbuhan tumbuhan adalah?", options: ["Insulin", "Auksin", "Adrenalin", "Tiroksin"], correct: 1},
-                {emoji: "🧬", question: "Proses pembentukan RNA dari DNA disebut?", options: ["Transkripsi", "Translasi", "Replikasi", "Mutasi"], correct: 0},
-                {emoji: "🦠", question: "Organel yang berperan dalam detoksifikasi adalah?", options: ["Mitokondria", "RE halus", "Ribosom", "Lisosom"], correct: 1},
-                {emoji: "🌿", question: "Tumbuhan C4 memiliki keunggulan dalam kondisi?", options: ["Dingin", "Panas dan kering", "Lembab", "Gelap"], correct: 1},
-                {emoji: "🐋", question: "Mamalia yang hidup di laut adalah?", options: ["Hiu", "Paus", "Gurita", "Ubur-ubur"], correct: 1},
-                {emoji: "🦠", question: "Proses fagositosis dilakukan oleh?", options: ["Sel darah merah", "Sel darah putih", "Trombosit", "Plasma"], correct: 1},
-                {emoji: "🌱", question: "Xilem berfungsi mengangkut?", options: ["Gula", "Air dan mineral", "Oksigen", "Protein"], correct: 1},
-                {emoji: "🧬", question: "Mutasi yang terjadi pada sel kelamin disebut?", options: ["Somatik", "Germinal", "Kromosom", "Gen"], correct: 1},
-                {emoji: "🦠", question: "Tahap respirasi yang menghasilkan ATP paling banyak adalah?", options: ["Glikolisis", "Siklus Krebs", "Transport elektron", "Fermentasi"], correct: 2},
-                {emoji: "🌿", question: "Floem berfungsi mengangkut?", options: ["Air", "Mineral", "Hasil fotosintesis", "Oksigen"], correct: 2},
-                {emoji: "🐨", question: "Hewan yang melahirkan dalam kantong disebut?", options: ["Plasental", "Marsupial", "Monotrem", "Ovipar"], correct: 1},
-                {emoji: "🦠", question: "Enzim yang berperan dalam replikasi DNA adalah?", options: ["RNA polimerase", "DNA polimerase", "Ligase", "Helikase"], correct: 1},
-                {emoji: "🌱", question: "Gerak tumbuhan menuju cahaya disebut?", options: ["Fototropisme", "Geotropisme", "Hidrotropisme", "Tigmotropisme"], correct: 0},
-                {emoji: "🧫", question: "Virus hanya dapat berkembang biak di dalam?", options: ["Air", "Udara", "Sel hidup", "Tanah"], correct: 2},
-                {emoji: "🦠", question: "Organel yang berperan dalam pembentukan lisosom adalah?", options: ["RE kasar", "Badan Golgi", "Mitokondria", "Ribosom"], correct: 1},
-                {emoji: "🌿", question: "Tumbuhan yang dapat hidup tanpa tanah disebut?", options: ["Hidrofit", "Epifit", "Xerofit", "Halofit"], correct: 1},
-                {emoji: "🧬", question: "Kode genetik terdiri dari ... basa nitrogen", options: ["2", "3", "4", "5"], correct: 1}
-            ],
-            sulit: [
-                {emoji: "🦠", question: "Kompleks protein yang berperan dalam fotosistem II adalah?", options: ["Sitokrom b6f", "ATP sintase", "PSII", "Ferredoksin"], correct: 2},
-                {emoji: "🌱", question: "Jalur metabolisme C4 pertama kali ditemukan pada tumbuhan?", options: ["Jagung", "Padi", "Gandum", "Kedelai"], correct: 0},
-                {emoji: "🧬", question: "Enzim yang berperan dalam perbaikan DNA adalah?", options: ["Polimerase", "Ligase", "Exonuklease", "Semua benar"], correct: 3},
-                {emoji: "🦠", question: "Proses autofagi dilakukan oleh organel?", options: ["Lisosom", "Peroksisom", "Proteasom", "Autophagosom"], correct: 0},
-                {emoji: "🌿", question: "Senyawa yang berperan sebagai akseptor CO2 dalam siklus Calvin adalah?", options: ["RuBP", "PGA", "G3P", "RuBisCO"], correct: 0},
-                {emoji: "🧫", question: "Bakteri yang dapat memfiksasi nitrogen adalah?", options: ["Rhizobium", "Azotobacter", "Clostridium", "Semua benar"], correct: 3},
-                {emoji: "🦠", question: "Tahap siklus sel dimana DNA direplikasi adalah?", options: ["G1", "S", "G2", "M"], correct: 1},
-                {emoji: "🌱", question: "Hormon yang menghambat perkecambahan biji adalah?", options: ["Giberelin", "Sitokinin", "ABA", "Etilen"], correct: 2},
-                {emoji: "🧬", question: "Proses splicing terjadi pada?", options: ["DNA", "mRNA", "tRNA", "rRNA"], correct: 1},
-                {emoji: "🦠", question: "Protein motor yang bergerak sepanjang mikrotubul adalah?", options: ["Aktin", "Miosin", "Kinesin", "Tubulin"], correct: 2},
-                {emoji: "🌿", question: "Tumbuhan CAM membuka stomatanya pada?", options: ["Siang hari", "Malam hari", "Pagi hari", "Sore hari"], correct: 1},
-                {emoji: "🐙", question: "Sistem saraf cephalopoda paling kompleks terdapat pada?", options: ["Cumi-cumi", "Gurita", "Nautilus", "Siput"], correct: 1},
-                {emoji: "🦠", question: "Proses yang menghasilkan variasi genetik dalam meiosis adalah?", options: ["Crossing over", "Independent assortment", "Nondisjunction", "A dan B benar"], correct: 3},
-                {emoji: "🌱", question: "Fitohormon yang berperan dalam senescence adalah?", options: ["Auksin", "Sitokinin", "Etilen", "Giberelin"], correct: 2},
-                {emoji: "🧬", question: "Kodon stop dalam kode genetik adalah?", options: ["UAG, UAA, UGA", "AUG, UUG, CUG", "GGG, CCC, AAA", "UUU, CCC, GGG"], correct: 0},
-                {emoji: "🦠", question: "Organel yang berperan dalam β-oksidasi asam lemak adalah?", options: ["Mitokondria", "Peroksisom", "RE halus", "Sitoplasma"], correct: 1},
-                {emoji: "🌿", question: "Enzim yang mengkatalisis fiksasi CO2 pada tumbuhan C3 adalah?", options: ["PEP karboksilase", "RuBisCO", "Malat dehidrogenase", "Piruvat kinase"], correct: 1},
-                {emoji: "🧫", question: "Prion adalah agen infeksi yang terdiri dari?", options: ["DNA", "RNA", "Protein", "Lipid"], correct: 2},
-                {emoji: "🦠", question: "Kompleks protein yang berperan dalam apoptosis adalah?", options: ["Bcl-2", "p53", "Caspase", "Semua benar"], correct: 3},
-                {emoji: "🌱", question: "Jalur sinyal yang mengatur tropisme pada tumbuhan melibatkan?", options: ["Auksin", "Ca2+", "cAMP", "A dan B benar"], correct: 3},
-                {emoji: "🧬", question: "Mekanisme epigenetik yang mengatur ekspresi gen adalah?", options: ["Metilasi DNA", "Modifikasi histon", "microRNA", "Semua benar"], correct: 3},
-                {emoji: "🦠", question: "Protein yang berperan dalam checkpoint siklus sel adalah?", options: ["Siklin", "CDK", "p21", "Semua benar"], correct: 3},
-                {emoji: "🌿", question: "Metabolit sekunder yang berperan dalam pertahanan tumbuhan adalah?", options: ["Alkaloid", "Terpenoid", "Fenol", "Semua benar"], correct: 3},
-                {emoji: "🐚", question: "Mollusca yang memiliki sistem sirkulasi tertutup adalah?", options: ["Gastropoda", "Bivalvia", "Cephalopoda", "Scaphopoda"], correct: 2},
-                {emoji: "🦠", question: "Proses yang mengatur homeostasis kalsium intraseluler adalah?", options: ["Pompa Ca2+-ATPase", "Kanal Ca2+", "Protein pengikat Ca2+", "Semua benar"], correct: 3},
-                {emoji: "🌱", question: "Mekanisme resistensi herbisida pada tumbuhan transgenik melibatkan?", options: ["Detoksifikasi enzim", "Modifikasi target", "Transportasi aktif", "Semua benar"], correct: 3},
-                {emoji: "🧬", question: "Teknik CRISPR-Cas9 bekerja dengan cara?", options: ["Memotong DNA", "Mengedit gen", "Mengaktifkan gen", "Semua benar"], correct: 3},
-                {emoji: "🦠", question: "Organel yang berperan dalam sintesis steroid adalah?", options: ["RE kasar", "RE halus", "Mitokondria", "Peroksisom"], correct: 1},
-                {emoji: "🌿", question: "Adaptasi tumbuhan gurun untuk menghemat air meliputi?", options: ["Daun tebal", "Stomata sedikit", "Akar panjang", "Semua benar"], correct: 3},
-                {emoji: "🧫", question: "Mekanisme resistensi antibiotik pada bakteri dapat melalui?", options: ["Mutasi gen", "Transfer plasmid", "Produksi enzim", "Semua benar"], correct: 3}
-            ]
-        };
-        
-        let currentLevel = '';
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let questions = [];
-        let answered = false;
-        
-        // Initialize floating cells
-        function createFloatingCells() {
-            const container = document.getElementById('floatingCells');
-            const cells = ['🔬', '🦠', '🧫', '🧬', '🌱', '🌿', '🌳', '🔍', '⚗️', '🧪'];
-            
-            for (let i = 0; i < 25; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'floating-cell';
-                cell.textContent = cells[Math.floor(Math.random() * cells.length)];
-                cell.style.left = Math.random() * 100 + '%';
-                cell.style.top = Math.random() * 100 + '%';
-                cell.style.animationDelay = Math.random() * 6 + 's';
-                cell.style.animationDuration = (4 + Math.random() * 6) + 's';
-                container.appendChild(cell);
-            }
-        }
-        
-        // Start quiz with selected difficulty
-        function startQuiz(level) {
-            currentLevel = level;
-            questions = [...quizData[level]];
-            currentQuestionIndex = 0;
-            score = 0;
-            answered = false;
-            
-            document.getElementById('levelSelection').classList.add('hidden');
-            document.getElementById('quizScreen').classList.remove('hidden');
-            
-            showQuestion();
-        }
-        
-        // Show current question
-        function showQuestion() {
-            const question = questions[currentQuestionIndex];
-            document.getElementById('questionEmoji').textContent = question.emoji;
-            document.getElementById('questionText').textContent = question.question;
-            document.getElementById('progressText').textContent = `${currentQuestionIndex + 1}/30`;
-            document.getElementById('progressBar').style.width = `${((currentQuestionIndex + 1) / 30) * 100}%`;
-            
-            const optionsContainer = document.getElementById('optionsContainer');
-            optionsContainer.innerHTML = '';
-            
-            question.options.forEach((option, index) => {
-                const button = document.createElement('button');
-                button.className = 'option-button w-full p-4 lg:p-6 text-left rounded-2xl text-base lg:text-lg font-medium';
-                button.textContent = option;
-                button.onclick = () => selectAnswer(index);
-                optionsContainer.appendChild(button);
-            });
-            
-            document.getElementById('nextButton').classList.add('hidden');
-            answered = false;
-            
-            updatePlantProgress();
-        }
-        
-        // Handle answer selection
-        function selectAnswer(selectedIndex) {
-            if (answered) return;
-            
-            answered = true;
-            const question = questions[currentQuestionIndex];
-            const buttons = document.querySelectorAll('.option-button');
-            
-            buttons.forEach((button, index) => {
-                if (index === question.correct) {
-                    button.classList.add('correct');
-                } else if (index === selectedIndex && index !== question.correct) {
-                    button.classList.add('incorrect');
-                }
-                button.disabled = true;
-            });
-            
-            if (selectedIndex === question.correct) {
-                score++;
-                document.getElementById('score').textContent = score;
-                createFloatingLeaves();
-            }
-            
-            document.getElementById('nextButton').classList.remove('hidden');
-        }
-        
-        // Create floating leaves animation
-        function createFloatingLeaves() {
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => {
-                    const leaf = document.createElement('div');
-                    leaf.className = 'floating-leaf';
-                    leaf.textContent = '🍃';
-                    leaf.style.left = Math.random() * 100 + '%';
-                    document.body.appendChild(leaf);
-                    
-                    setTimeout(() => {
-                        leaf.remove();
-                    }, 3000);
-                }, i * 200);
-            }
-        }
-        
-        // Update plant progress based on score
-        function updatePlantProgress() {
-            const progress = Math.floor((score / 30) * 3);
-            const plantElement = document.getElementById('plantProgress');
-            const plantText = document.getElementById('plantText');
-            
-            if (progress === 0) {
-                plantElement.textContent = '🌱';
-                plantText.textContent = 'Sedang tumbuh!';
-            } else if (progress === 1) {
-                plantElement.textContent = '🌿';
-                plantText.textContent = 'Berkembang pesat!';
-            } else {
-                plantElement.textContent = '🌳';
-                plantText.textContent = 'Sudah besar!';
-            }
-        }
-        
-        // Move to next question
-        function nextQuestion() {
-            currentQuestionIndex++;
-            
-            if (currentQuestionIndex >= 30) {
-                showResults();
-            } else {
-                showQuestion();
-            }
-        }
-        
-        // Show final results
-        function showResults() {
-            document.getElementById('quizScreen').classList.add('hidden');
-            document.getElementById('resultsScreen').classList.remove('hidden');
-            
-            document.getElementById('finalScore').textContent = score;
-            
-            // Calculate accuracy
-            const accuracy = Math.round((score / 30) * 100);
-            document.getElementById('accuracy').textContent = accuracy + '%';
-            
-            let resultMessage = '';
-            let finalPlant = '';
-            
-            if (score >= 25) {
-                resultMessage = '🌟 Luar biasa! Anda adalah ahli biologi sejati! Penguasaan materi sangat sempurna!';
-                finalPlant = '🌳';
-            } else if (score >= 20) {
-                resultMessage = '👏 Bagus sekali! Pengetahuan biologi Anda sangat baik! Terus pertahankan semangat belajar!';
-                finalPlant = '🌿';
-            } else if (score >= 15) {
-                resultMessage = '👍 Cukup baik! Anda sudah memahami konsep dasar. Terus belajar untuk menjadi lebih baik!';
-                finalPlant = '🌱';
-            } else {
-                resultMessage = '💪 Jangan menyerah! Setiap ahli pernah memulai dari awal. Belajar lagi dan coba sekali lagi!';
-                finalPlant = '🌱';
-            }
-            
-            document.getElementById('resultMessage').textContent = resultMessage;
-            document.getElementById('finalPlant').textContent = finalPlant;
-            
-            // Celebration animation
-            setTimeout(() => {
-                for (let i = 0; i < 20; i++) {
-                    setTimeout(() => {
-                        createFloatingLeaves();
-                    }, i * 100);
-                }
-            }, 500);
-        }
-        
-        // Restart quiz with same difficulty
-        function restartQuiz() {
-            startQuiz(currentLevel);
-            document.getElementById('resultsScreen').classList.add('hidden');
-        }
-        
-        // Change difficulty level
-        function changeDifficulty() {
-            document.getElementById('resultsScreen').classList.add('hidden');
-            document.getElementById('levelSelection').classList.remove('hidden');
-        }
-        
-        // Initialize the app
-        createFloatingCells();
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4d04826394030',t:'MTc1NzczNjgyMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    <!-- Level Selection Screen (kept) -->
+    <div id="levelSelection" class="flex-1 flex flex-col">
+      <div class="text-center mb-5 sm:mb-8 flex-shrink-0">
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2 sm:mb-4">🌱 Pilih Tingkat Kesulitan 🌱</h2>
+        <p class="text-gray-700 text-sm sm:text-base">Sesuaikan dengan kemampuan Anda</p>
+      </div>
+
+      <div class="flex-1 flex flex-col gap-3 sm:gap-4 justify-center max-h-[60vh] overflow-y-auto pr-1">
+        <div class="level-card p-4 sm:p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('mudah')" role="button" aria-label="Mulai level mudah">
+          <div class="flex items-center sm:flex-col sm:text-center">
+            <div class="text-4xl sm:text-6xl lg:text-7xl mr-4 sm:mr-0 sm:mb-3 progress-plant">🌱</div>
+            <div class="flex-1 sm:flex-none">
+              <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Mudah</h3>
+              <p class="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">Konsep dasar biologi untuk pemula</p>
+              <div class="bg-green-100 text-green-700 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium inline-block">30 Soal Pilihan Ganda</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="level-card p-4 sm:p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('sedang')" role="button" aria-label="Mulai level sedang">
+          <div class="flex items-center sm:flex-col sm:text-center">
+            <div class="text-4xl sm:text-6xl lg:text-7xl mr-4 sm:mr-0 sm:mb-3 progress-plant">🌿</div>
+            <div class="flex-1 sm:flex-none">
+              <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-blue-700 mb-1 sm:mb-2">Sedang</h3>
+              <p class="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">Pemahaman mendalam untuk siswa aktif</p>
+              <div class="bg-blue-100 text-blue-700 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium inline-block">30 Soal Menantang</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="level-card p-4 sm:p-6 lg:p-8 rounded-2xl cursor-pointer" onclick="startQuiz('sulit')" role="button" aria-label="Mulai level sulit">
+          <div class="flex items-center sm:flex-col sm:text-center">
+            <div class="text-4xl sm:text-6xl lg:text-7xl mr-4 sm:mr-0 sm:mb-3 progress-plant">🌳</div>
+            <div class="flex-1 sm:flex-none">
+              <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-purple-700 mb-1 sm:mb-2">Sulit</h3>
+              <p class="text-sm sm:text-base text-gray-600 mb-2 sm:mb-4">Tantangan untuk calon ahli biologi</p>
+              <div class="bg-purple-100 text-purple-700 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium inline-block">30 Soal Expert</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Screen (kept) -->
+    <div id="quizScreen" class="hidden flex-1 flex flex-col min-h-0">
+      <!-- Progress Bar -->
+      <div class="mb-4 sm:mb-6 flex-shrink-0">
+        <div class="flex justify-between items-center mb-2 sm:mb-3">
+          <span class="text-base sm:text-lg font-bold text-green-700">Kemajuan Pembelajaran</span>
+          <span class="text-base sm:text-lg font-bold text-blue-600" id="progressText">1/30</span>
+        </div>
+        <div class="progress-bar-container h-3 sm:h-4">
+          <div class="progress-bar h-full" id="progressBar" style="width:3.33%"></div>
+        </div>
+      </div>
+
+      <!-- Plant Progress & Score -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6 flex-shrink-0">
+        <div class="text-center">
+          <div class="text-5xl sm:text-6xl lg:text-7xl progress-plant mb-1 sm:mb-2" id="plantProgress">🌱</div>
+          <p class="text-xs sm:text-sm lg:text-base text-green-600 font-medium" id="plantText">Sedang tumbuh!</p>
+        </div>
+        <div class="text-center">
+          <div class="score-badge rounded-2xl px-5 py-3 sm:px-6 sm:py-4">
+            <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mb-0.5 sm:mb-1" id="score">0</div>
+            <p class="text-xs sm:text-sm text-gray-600">Skor Benar</p>
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl sm:text-4xl lg:text-5xl mb-1 sm:mb-2">🏆</div>
+          <p class="text-xs sm:text-sm lg:text-base text-purple-600 font-medium" id="targetText">Target: 25/30</p>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="question-card p-5 sm:p-6 lg:p-8 rounded-2xl mb-4 sm:mb-6 flex-1 min-h-0 flex flex-col">
+        <div class="text-center mb-4 sm:mb-6 flex-shrink-0">
+          <div class="text-4xl sm:text-5xl lg:text-6xl mb-3 sm:mb-4 progress-plant" id="questionEmoji">🦠</div>
+          <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 leading-relaxed" id="questionText"></h3>
+        </div>
+
+        <div class="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6 overflow-y-auto pr-1" id="optionsContainer"></div>
+      </div>
+
+      <!-- Next Button -->
+      <div class="text-center flex-shrink-0">
+        <button id="nextButton" class="hidden bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg active:scale-95 transition-all shadow-2xl" onclick="nextQuestion()" aria-label="Lanjut ke soal berikutnya">
+          Lanjut ke Soal Berikutnya 🚀
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Screen (kept) -->
+    <div id="resultsScreen" class="hidden flex-1 flex flex-col justify-center min-h-0">
+      <div class="question-card p-6 sm:p-8 lg:p-12 rounded-3xl text-center relative overflow-hidden">
+        <!-- Celebration Elements -->
+        <div class="sparkle" style="top:10%; left:15%; animation-delay:0s">🎉</div>
+        <div class="sparkle" style="top:20%; right:20%; animation-delay:.5s">🎊</div>
+        <div class="sparkle" style="bottom:20%; left:25%; animation-delay:1s">✨</div>
+        <div class="sparkle" style="bottom:15%; right:15%; animation-delay:1.5s">🌟</div>
+
+        <div class="text-5xl sm:text-6xl lg:text-7xl mb-4 sm:mb-6 progress-plant">🏆</div>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 sm:mb-6">Selamat! Misi Selesai!</h2>
+        <div class="text-7xl sm:text-8xl lg:text-9xl mb-6 sm:mb-8 progress-plant" id="finalPlant">🌳</div>
+
+        <!-- Digital Badge -->
+        <div class="digital-badge text-white p-5 sm:p-6 lg:p-8 rounded-3xl mb-6 sm:mb-8 mx-auto max-w-md relative z-10">
+          <div class="text-3xl sm:text-4xl lg:text-5xl mb-2 sm:mb-3">🔬🧪🧬</div>
+          <h3 class="text-lg sm:text-xl lg:text-2xl font-bold mb-1 sm:mb-2">Ahli Biologi Junior</h3>
+          <p class="text-xs sm:text-sm lg:text-base opacity-90">Lencana Digital Resmi</p>
+          <div class="text-[10px] sm:text-xs lg:text-sm mt-1 sm:mt-2 opacity-75">Certified by Bio-Quiz System</div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div class="score-badge rounded-2xl p-4">
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600 mb-1 sm:mb-2" id="finalScore">0</div>
+            <p class="text-gray-600 text-sm sm:text-base">Skor Akhir</p>
+          </div>
+          <div class="score-badge rounded-2xl p-4">
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-600 mb-1 sm:mb-2" id="finalTotal">30</div>
+            <p class="text-gray-600 text-sm sm:text-base">Total Soal</p>
+          </div>
+          <div class="score-badge rounded-2xl p-4">
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600 mb-1 sm:mb-2" id="accuracy">0%</div>
+            <p class="text-gray-600 text-sm sm:text-base">Akurasi</p>
+          </div>
+        </div>
+
+        <div class="text-base sm:text-lg lg:text-xl text-gray-700 mb-6 sm:mb-8 font-medium" id="resultMessage"></div>
+
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+          <button class="bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg active:scale-95 transition-all shadow-2xl" onclick="restartQuiz()">🔄 Main Lagi dengan Level Sama</button>
+          <button class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg active:scale-95 transition-all shadow-2xl" onclick="changeDifficulty()">📚 Pilih Level Berbeda</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ================= Quiz Data (kept apa adanya) =================
+    const quizData = {
+      mudah: [
+        {emoji:"🦠",question:"Apa unit terkecil dari makhluk hidup?",options:["Sel","Jaringan","Organ","Organisme"],correct:0},
+        {emoji:"🌱",question:"Proses pembuatan makanan pada tumbuhan disebut?",options:["Respirasi","Fotosintesis","Transpirasi","Fermentasi"],correct:1},
+        {emoji:"🧬",question:"DNA adalah singkatan dari?",options:["Deoxyribonucleic Acid","Deoxyribose Acid","Deoxy Acid","Ribonucleic Acid"],correct:0},
+        {emoji:"🦠",question:"Organel yang menghasilkan energi dalam sel adalah?",options:["Nukleus","Mitokondria","Ribosom","Vakuola"],correct:1},
+        {emoji:"🌿",question:"Zat hijau daun yang berperan dalam fotosintesis adalah?",options:["Klorofil","Karotin","Xantofil","Antosianin"],correct:0},
+        {emoji:"🐅",question:"Hewan yang termasuk mamalia adalah?",options:["Ikan","Burung","Harimau","Ular"],correct:2},
+        {emoji:"🦠",question:"Bagian sel yang mengatur keluar masuknya zat adalah?",options:["Dinding sel","Membran sel","Sitoplasma","Nukleus"],correct:1},
+        {emoji:"🌱",question:"Gas yang dibutuhkan tumbuhan untuk fotosintesis adalah?",options:["Oksigen","Nitrogen","Karbon dioksida","Hidrogen"],correct:2},
+        {emoji:"🐸",question:"Hewan yang mengalami metamorfosis adalah?",options:["Kucing","Katak","Ikan","Burung"],correct:1},
+        {emoji:"🧫",question:"Ilmu yang mempelajari tentang sel disebut?",options:["Histologi","Sitologi","Anatomi","Fisiologi"],correct:1},
+        {emoji:"🦠",question:"Organel yang berfungsi sebagai pusat kendali sel adalah?",options:["Mitokondria","Ribosom","Nukleus","Lisosom"],correct:2},
+        {emoji:"🌿",question:"Hasil fotosintesis berupa?",options:["Glukosa dan oksigen","Air dan CO2","Protein","Lemak"],correct:0},
+        {emoji:"🐛",question:"Hewan tidak bertulang belakang disebut?",options:["Vertebrata","Invertebrata","Mamalia","Reptil"],correct:1},
+        {emoji:"🌱",question:"Bagian tumbuhan yang berfungsi menyerap air adalah?",options:["Daun","Batang","Akar","Bunga"],correct:2},
+        {emoji:"🦠",question:"Sel tumbuhan memiliki ... yang tidak dimiliki sel hewan",options:["Nukleus","Mitokondria","Dinding sel","Ribosom"],correct:2},
+        {emoji:"🐟",question:"Ikan bernapas menggunakan?",options:["Paru-paru","Insang","Kulit","Trakea"],correct:1},
+        {emoji:"🌿",question:"Proses penguapan air melalui daun disebut?",options:["Fotosintesis","Respirasi","Transpirasi","Osmosis"],correct:2},
+        {emoji:"🦅",question:"Ciri khas burung adalah?",options:["Berbulu dan bertelur","Menyusui","Berdarah dingin","Hidup di air"],correct:0},
+        {emoji:"🧬",question:"Kromosom terdapat di dalam?",options:["Sitoplasma","Mitokondria","Nukleus","Ribosom"],correct:2},
+        {emoji:"🌱",question:"Tumbuhan hijau disebut sebagai?",options:["Konsumen","Produsen","Dekomposer","Predator"],correct:1},
+        {emoji:"🦠",question:"Organel yang berfungsi mencerna zat dalam sel adalah?",options:["Lisosom","Ribosom","Vakuola","Plastida"],correct:0},
+        {emoji:"🐍",question:"Ular termasuk kelompok hewan?",options:["Mamalia","Amfibi","Reptil","Aves"],correct:2},
+        {emoji:"🌿",question:"Stomata berfungsi untuk?",options:["Fotosintesis","Pertukaran gas","Menyerap air","Reproduksi"],correct:1},
+        {emoji:"🦠",question:"Ribosom berfungsi untuk?",options:["Sintesis protein","Respirasi","Fotosintesis","Pencernaan"],correct:0},
+        {emoji:"🐧",question:"Penguin termasuk kelompok?",options:["Mamalia","Reptil","Aves","Amfibi"],correct:2},
+        {emoji:"🌱",question:"Bagian bunga yang berfungsi sebagai alat kelamin jantan adalah?",options:["Putik","Benang sari","Mahkota","Kelopak"],correct:1},
+        {emoji:"🦠",question:"Vakuola pada sel tumbuhan berfungsi untuk?",options:["Sintesis protein","Menyimpan air","Respirasi","Fotosintesis"],correct:1},
+        {emoji:"🐠",question:"Hewan yang hidup di air dan darat disebut?",options:["Akuatik","Terestrial","Amfibi","Arboreal"],correct:2},
+        {emoji:"🌿",question:"Kloroplas hanya terdapat pada?",options:["Sel hewan","Sel tumbuhan","Sel bakteri","Sel jamur"],correct:1},
+        {emoji:"🧬",question:"Sifat yang diturunkan dari induk ke keturunan disebut?",options:["Adaptasi","Evolusi","Hereditas","Mutasi"],correct:2}
+      ],
+      sedang: [
+        {emoji:"🦠",question:"Organel yang berperan dalam sintesis lemak adalah?",options:["RE kasar","RE halus","Ribosom","Lisosom"],correct:1},
+        {emoji:"🌱",question:"Reaksi terang fotosintesis terjadi di?",options:["Stroma","Tilakoid","Sitoplasma","Nukleus"],correct:1},
+        {emoji:"🧬",question:"Jumlah kromosom manusia normal adalah?",options:["44","46","48","50"],correct:1},
+        {emoji:"🦠",question:"Proses pembelahan sel yang menghasilkan gamet disebut?",options:["Mitosis","Meiosis","Amitosis","Sitokinesis"],correct:1},
+        {emoji:"🌿",question:"Enzim yang memecah CO2 dalam fotosintesis adalah?",options:["Rubisco","Katalase","Amilase","Pepsin"],correct:0},
+        {emoji:"🐆",question:"Sistem klasifikasi modern menggunakan berapa kingdom?",options:["3","5","6","7"],correct:2},
+        {emoji:"🦠",question:"Fase mitosis dimana kromosom berjajar di tengah sel adalah?",options:["Profase","Metafase","Anafase","Telofase"],correct:1},
+        {emoji:"🌱",question:"Faktor yang TIDAK mempengaruhi fotosintesis adalah?",options:["Cahaya","CO2","Suhu","Kelembaban tanah"],correct:3},
+        {emoji:"🧫",question:"Bakteri yang dapat melakukan fotosintesis adalah?",options:["E. coli","Sianobakteri","Streptococcus","Lactobacillus"],correct:1},
+        {emoji:"🦠",question:"Organel yang mengandung DNA selain nukleus adalah?",options:["Ribosom","Lisosom","Mitokondria","Vakuola"],correct:2},
+        {emoji:"🌿",question:"Reaksi gelap fotosintesis disebut juga siklus?",options:["Krebs","Calvin","Glikolisis","Elektron"],correct:1},
+        {emoji:"🐸",question:"Metamorfosis tidak sempurna terjadi pada?",options:["Kupu-kupu","Katak","Belalang","Nyamuk"],correct:2},
+        {emoji:"🦠",question:"Sel yang tidak memiliki membran inti disebut?",options:["Eukariot","Prokariot","Unisel","Multisel"],correct:1},
+        {emoji:"🌱",question:"Hormon yang mengatur pertumbuhan tumbuhan adalah?",options:["Insulin","Auksin","Adrenalin","Tiroksin"],correct:1},
+        {emoji:"🧬",question:"Proses pembentukan RNA dari DNA disebut?",options:["Transkripsi","Translasi","Replikasi","Mutasi"],correct:0},
+        {emoji:"🦠",question:"Organel yang berperan dalam detoksifikasi adalah?",options:["Mitokondria","RE halus","Ribosom","Lisosom"],correct:1},
+        {emoji:"🌿",question:"Tumbuhan C4 memiliki keunggulan dalam kondisi?",options:["Dingin","Panas dan kering","Lembab","Gelap"],correct:1},
+        {emoji:"🐋",question:"Mamalia yang hidup di laut adalah?",options:["Hiu","Paus","Gurita","Ubur-ubur"],correct:1},
+        {emoji:"🦠",question:"Proses fagositosis dilakukan oleh?",options:["Sel darah merah","Sel darah putih","Trombosit","Plasma"],correct:1},
+        {emoji:"🌱",question:"Xilem berfungsi mengangkut?",options:["Gula","Air dan mineral","Oksigen","Protein"],correct:1},
+        {emoji:"🧬",question:"Mutasi yang terjadi pada sel kelamin disebut?",options:["Somatik","Germinal","Kromosom","Gen"],correct:1},
+        {emoji:"🦠",question:"Tahap respirasi yang menghasilkan ATP paling banyak adalah?",options:["Glikolisis","Siklus Krebs","Transport elektron","Fermentasi"],correct:2},
+        {emoji:"🌿",question:"Floem berfungsi mengangkut?",options:["Air","Mineral","Hasil fotosintesis","Oksigen"],correct:2},
+        {emoji:"🐨",question:"Hewan yang melahirkan dalam kantong disebut?",options:["Plasental","Marsupial","Monotrem","Ovipar"],correct:1},
+        {emoji:"🦠",question:"Enzim yang berperan dalam replikasi DNA adalah?",options:["RNA polimerase","DNA polimerase","Ligase","Helikase"],correct:1},
+        {emoji:"🌱",question:"Gerak tumbuhan menuju cahaya disebut?",options:["Fototropisme","Geotropisme","Hidrotropisme","Tigmotropisme"],correct:0},
+        {emoji:"🧫",question:"Virus hanya dapat berkembang biak di dalam?",options:["Air","Udara","Sel hidup","Tanah"],correct:2},
+        {emoji:"🦠",question:"Organel yang berperan dalam pembentukan lisosom adalah?",options:["RE kasar","Badan Golgi","Mitokondria","Ribosom"],correct:1},
+        {emoji:"🌿",question:"Tumbuhan yang dapat hidup tanpa tanah disebut?",options:["Hidrofit","Epifit","Xerofit","Halofit"],correct:1},
+        {emoji:"🧬",question:"Kode genetik terdiri dari ... basa nitrogen",options:["2","3","4","5"],correct:1}
+      ],
+      sulit: [
+        {emoji:"🦠",question:"Kompleks protein yang berperan dalam fotosistem II adalah?",options:["Sitokrom b6f","ATP sintase","PSII","Ferredoksin"],correct:2},
+        {emoji:"🌱",question:"Jalur metabolisme C4 pertama kali ditemukan pada tumbuhan?",options:["Jagung","Padi","Gandum","Kedelai"],correct:0},
+        {emoji:"🧬",question:"Enzim yang berperan dalam perbaikan DNA adalah?",options:["Polimerase","Ligase","Exonuklease","Semua benar"],correct:3},
+        {emoji:"🦠",question:"Proses autofagi dilakukan oleh organel?",options:["Lisosom","Peroksisom","Proteasom","Autophagosom"],correct:0},
+        {emoji:"🌿",question:"Senyawa yang berperan sebagai akseptor CO2 dalam siklus Calvin adalah?",options:["RuBP","PGA","G3P","RuBisCO"],correct:0},
+        {emoji:"🧫",question:"Bakteri yang dapat memfiksasi nitrogen adalah?",options:["Rhizobium","Azotobacter","Clostridium","Semua benar"],correct:3},
+        {emoji:"🦠",question:"Tahap siklus sel dimana DNA direplikasi adalah?",options:["G1","S","G2","M"],correct:1},
+        {emoji:"🌱",question:"Hormon yang menghambat perkecambahan biji adalah?",options:["Giberelin","Sitokinin","ABA","Etilen"],correct:2},
+        {emoji:"🧬",question:"Proses splicing terjadi pada?",options:["DNA","mRNA","tRNA","rRNA"],correct:1},
+        {emoji:"🦠",question:"Protein motor yang bergerak sepanjang mikrotubul adalah?",options:["Aktin","Miosin","Kinesin","Tubulin"],correct:2},
+        {emoji:"🌿",question:"Tumbuhan CAM membuka stomatanya pada?",options:["Siang hari","Malam hari","Pagi hari","Sore hari"],correct:1},
+        {emoji:"🐙",question:"Sistem saraf cephalopoda paling kompleks terdapat pada?",options:["Cumi-cumi","Gurita","Nautilus","Siput"],correct:1},
+        {emoji:"🦠",question:"Proses yang menghasilkan variasi genetik dalam meiosis adalah?",options:["Crossing over","Independent assortment","Nondisjunction","A dan B benar"],correct:3},
+        {emoji:"🌱",question:"Fitohormon yang berperan dalam senescence adalah?",options:["Auksin","Sitokinin","Etilen","Giberelin"],correct:2},
+        {emoji:"🧬",question:"Kodon stop dalam kode genetik adalah?",options:["UAG, UAA, UGA","AUG, UUG, CUG","GGG, CCC, AAA","UUU, CCC, GGG"],correct:0},
+        {emoji:"🦠",question:"Organel yang berperan dalam β-oksidasi asam lemak adalah?",options:["Mitokondria","Peroksisom","RE halus","Sitoplasma"],correct:1},
+        {emoji:"🌿",question:"Enzim yang mengkatalisis fiksasi CO2 pada tumbuhan C3 adalah?",options:["PEP karboksilase","RuBisCO","Malat dehidrogenase","Piruvat kinase"],correct:1},
+        {emoji:"🧫",question:"Prion adalah agen infeksi yang terdiri dari?",options:["DNA","RNA","Protein","Lipid"],correct:2},
+        {emoji:"🦠",question:"Kompleks protein yang berperan dalam apoptosis adalah?",options:["Bcl-2","p53","Caspase","Semua benar"],correct:3},
+        {emoji:"🌱",question:"Jalur sinyal yang mengatur tropisme pada tumbuhan melibatkan?",options:["Auksin","Ca2+","cAMP","A dan B benar"],correct:3},
+        {emoji:"🧬",question:"Mekanisme epigenetik yang mengatur ekspresi gen adalah?",options:["Metilasi DNA","Modifikasi histon","microRNA","Semua benar"],correct:3},
+        {emoji:"🦠",question:"Protein yang berperan dalam checkpoint siklus sel adalah?",options:["Siklin","CDK","p21","Semua benar"],correct:3},
+        {emoji:"🌿",question:"Metabolit sekunder yang berperan dalam pertahanan tumbuhan adalah?",options:["Alkaloid","Terpenoid","Fenol","Semua benar"],correct:3},
+        {emoji:"🐚",question:"Mollusca yang memiliki sistem sirkulasi tertutup adalah?",options:["Gastropoda","Bivalvia","Cephalopoda","Scaphopoda"],correct:2},
+        {emoji:"🦠",question:"Proses yang mengatur homeostasis kalsium intraseluler adalah?",options:["Pompa Ca2+-ATPase","Kanal Ca2+","Protein pengikat Ca2+","Semua benar"],correct:3},
+        {emoji:"🌱",question:"Mekanisme resistensi herbisida pada tumbuhan transgenik melibatkan?",options:["Detoksifikasi enzim","Modifikasi target","Transportasi aktif","Semua benar"],correct:3},
+        {emoji:"🧬",question:"Teknik CRISPR-Cas9 bekerja dengan cara?",options:["Memotong DNA","Mengedit gen","Mengaktifkan gen","Semua benar"],correct:3},
+        {emoji:"🦠",question:"Organel yang berperan dalam sintesis steroid adalah?",options:["RE kasar","RE halus","Mitokondria","Peroksisom"],correct:1},
+        {emoji:"🌿",question:"Adaptasi tumbuhan gurun untuk menghemat air meliputi?",options:["Daun tebal","Stomata sedikit","Akar panjang","Semua benar"],correct:3},
+        {emoji:"🧫",question:"Mekanisme resistensi antibiotik pada bakteri dapat melalui?",options:["Mutasi gen","Transfer plasmid","Produksi enzim","Semua benar"],correct:3}
+      ]
+    };
+
+    // ================= State =================
+    let currentLevel = '';
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let questions = [];
+    let answered = false;
+    let totalQuestions = 0;
+
+    // ================= Utils =================
+    function qs(sel, root=document){ return root.querySelector(sel); }
+
+    // Floating background: responsive count
+    function createFloatingCells(){
+      const container = document.getElementById('floatingCells');
+      const cells = ['🔬','🦠','🧫','🧬','🌱','🌿','🌳','🔍','⚗️','🧪'];
+      const isSmall = window.matchMedia('(max-width: 640px)').matches;
+      const count = isSmall ? 12 : 24; // lebih ringan di mobile
+      for(let i=0;i<count;i++){
+        const cell = document.createElement('div');
+        cell.className = 'floating-cell';
+        cell.textContent = cells[Math.floor(Math.random()*cells.length)];
+        cell.style.left = Math.random()*100 + '%';
+        cell.style.top  = Math.random()*100 + '%';
+        cell.style.animationDelay = (Math.random()*6) + 's';
+        cell.style.animationDuration = (4 + Math.random()*6) + 's';
+        container.appendChild(cell);
+      }
+    }
+
+    // ================= Flow =================
+    function startQuiz(level){
+      currentLevel = level;
+      questions = [...quizData[level]];
+      totalQuestions = questions.length; // dynamic total
+      currentQuestionIndex = 0;
+      score = 0; answered = false;
+
+      qs('#levelSelection').classList.add('hidden');
+      qs('#quizScreen').classList.remove('hidden');
+
+      // Dynamic target: 83% dari total (≈ 25/30)
+      const target = Math.ceil(totalQuestions * 0.83);
+      qs('#targetText').textContent = `Target: ${target}/${totalQuestions}`;
+
+      showQuestion();
+    }
+
+    function showQuestion(){
+      const q = questions[currentQuestionIndex];
+      qs('#questionEmoji').textContent = q.emoji;
+      qs('#questionText').textContent = q.question;
+      qs('#progressText').textContent = `${currentQuestionIndex+1}/${totalQuestions}`;
+      qs('#progressBar').style.width = `${((currentQuestionIndex+1)/totalQuestions)*100}%`;
+
+      const optionsContainer = qs('#optionsContainer');
+      optionsContainer.innerHTML='';
+      q.options.forEach((opt, idx)=>{
+        const btn = document.createElement('button');
+        btn.className = 'option-button w-full p-4 sm:p-5 lg:p-6 text-left rounded-2xl text-sm sm:text-base lg:text-lg font-medium';
+        btn.textContent = opt;
+        btn.setAttribute('aria-label', `Jawaban ${idx+1}`);
+        btn.addEventListener('click', ()=>selectAnswer(idx));
+        optionsContainer.appendChild(btn);
+      });
+
+      qs('#nextButton').classList.add('hidden');
+      answered = false;
+      updatePlantProgress();
+    }
+
+    function selectAnswer(selectedIndex){
+      if(answered) return;
+      answered = true;
+      const q = questions[currentQuestionIndex];
+      const buttons = document.querySelectorAll('.option-button');
+      buttons.forEach((b, idx)=>{
+        if(idx === q.correct) b.classList.add('correct');
+        else if(idx === selectedIndex && idx !== q.correct) b.classList.add('incorrect');
+        b.disabled = true;
+      });
+      if(selectedIndex === q.correct){ score++; qs('#score').textContent = score; createFloatingLeaves(); }
+      qs('#nextButton').classList.remove('hidden');
+    }
+
+    function createFloatingLeaves(){
+      for(let i=0;i<5;i++){
+        setTimeout(()=>{
+          const leaf = document.createElement('div');
+          leaf.className = 'floating-leaf';
+          leaf.textContent = '🍃';
+          leaf.style.left = Math.random()*100 + '%';
+          document.body.appendChild(leaf);
+          setTimeout(()=>leaf.remove(), 2800);
+        }, i*160);
+      }
+    }
+
+    function updatePlantProgress(){
+      // 0..2 tahap
+      const stage = Math.floor((score/Math.max(1,totalQuestions)) * 3);
+      const plant = qs('#plantProgress');
+      const text = qs('#plantText');
+      if(stage <= 0){ plant.textContent='🌱'; text.textContent='Sedang tumbuh!'; }
+      else if(stage === 1){ plant.textContent='🌿'; text.textContent='Berkembang pesat!'; }
+      else { plant.textContent='🌳'; text.textContent='Sudah besar!'; }
+    }
+
+    function nextQuestion(){
+      // cegah double tap
+      const btn = qs('#nextButton');
+      btn.disabled = true;
+      currentQuestionIndex++;
+      if(currentQuestionIndex >= totalQuestions){ showResults(); btn.disabled=false; return; }
+      showQuestion();
+      // re-enable setelah render
+      setTimeout(()=>{ btn.disabled=false; }, 150);
+    }
+
+    function showResults(){
+      qs('#quizScreen').classList.add('hidden');
+      qs('#resultsScreen').classList.remove('hidden');
+
+      qs('#finalScore').textContent = score;
+      qs('#finalTotal').textContent = totalQuestions;
+      const acc = Math.round((score/Math.max(1,totalQuestions))*100);
+      qs('#accuracy').textContent = acc + '%';
+
+      let msg='', plant='';
+      if(score >= Math.ceil(totalQuestions*0.83)){ msg='🌟 Luar biasa! Anda adalah ahli biologi sejati! Penguasaan materi sangat sempurna!'; plant='🌳'; }
+      else if(score >= Math.ceil(totalQuestions*0.66)){ msg='👏 Bagus sekali! Pengetahuan biologi Anda sangat baik! Terus pertahankan semangat belajar!'; plant='🌿'; }
+      else if(score >= Math.ceil(totalQuestions*0.5)){ msg='👍 Cukup baik! Anda sudah memahami konsep dasar. Terus belajar untuk menjadi lebih baik!'; plant='🌱'; }
+      else { msg='💪 Jangan menyerah! Setiap ahli pernah memulai dari awal. Belajar lagi dan coba sekali lagi!'; plant='🌱'; }
+      qs('#resultMessage').textContent = msg;
+      qs('#finalPlant').textContent = plant;
+
+      setTimeout(()=>{ for(let i=0;i<16;i++){ setTimeout(()=>createFloatingLeaves(), i*90); } }, 400);
+    }
+
+    function restartQuiz(){ startQuiz(currentLevel); qs('#resultsScreen').classList.add('hidden'); }
+    function changeDifficulty(){ qs('#resultsScreen').classList.add('hidden'); qs('#levelSelection').classList.remove('hidden'); }
+
+    // Boot
+    document.addEventListener('DOMContentLoaded', ()=>{ createFloatingCells(); });
+  </script>
+
+  <!-- (kept) Cloudflare snippet dari input asli -->
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4d04826394030',t:'MTc1NzczNjgyMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
 </html>
