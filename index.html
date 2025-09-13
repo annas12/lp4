@@ -1,288 +1,386 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Kecocokan Weton Pasangan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .card-shadow { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        .result-card { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .compatibility-excellent { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-        .compatibility-good { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-        .compatibility-fair { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-        .compatibility-poor { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Tower Builder Mini</title>
+  <style>
+    :root{
+      --bg:#0b1220; --fg:#e7eefc; --muted:#94a3b8; --line:#1f2b4a; --accent:#5eead4; --warn:#f59e0b; --danger:#ef4444; --ok:#22c55e;
+      --floor: 62px; /* tinggi per lantai */
+      --w: 180px;    /* lebar lantai awal */
+      --arenaPad: 14px;
+    }
+    *{box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent}
+    html,body{height:100%; margin:0; background:var(--bg); color:var(--fg); font:500 16px/1.5 system-ui,Segoe UI,Roboto,Arial}
+
+    .app{position:fixed; inset:0; display:flex; flex-direction:column; gap:10px; padding:10px}
+
+    .hud{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+    .chip{padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:#0e1931; color:var(--fg)}
+    .chip b{color:#fff}
+    .spacer{flex:1}
+    .btn{border:1px solid var(--line); background:#152240; color:var(--fg); padding:8px 12px; border-radius:12px; cursor:pointer}
+    .btn.primary{background:var(--accent); color:#05211d; font-weight:700; border:0}
+
+    .arena{position:relative; flex:1; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:linear-gradient(#0e1830,#081122 55%);
+      box-shadow:inset 0 30px 80px rgba(0,0,0,.35)}
+    .skyline{position:absolute; inset:0; pointer-events:none;}
+    .skyline::before{content:""; position:absolute; inset:auto 0 0 0; height:42%; background:
+      linear-gradient(to top, rgba(9,16,32,.9), rgba(9,16,32,.0)),
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="240" viewBox="0 0 800 240"><g fill="%2312233f" opacity="0.95"><rect x="0" y="120" width="60" height="120"/><rect x="70" y="140" width="50" height="100"/><rect x="130" y="100" width="70" height="140"/><rect x="220" y="150" width="60" height="90"/><rect x="300" y="110" width="80" height="130"/><rect x="400" y="130" width="50" height="110"/><rect x="470" y="100" width="65" height="140"/><rect x="545" y="150" width="55" height="90"/><rect x="610" y="120" width="70" height="120"/><rect x="700" y="140" width="50" height="100"/></g></svg>') center bottom/800px 240px repeat-x;}
+
+    /* Crane */
+    .crane{position:absolute; top:6%; left:0; right:0; height:80px; pointer-events:none}
+    .crane .arm{position:absolute; left:50%; top:0; width:260px; height:6px; background:#1e2e52; transform-origin:left center; border-radius:4px}
+    .crane .hook{position:absolute; width:18px; height:18px; border-radius:50%; background:#223862; box-shadow:0 0 0 2px #0b1220 inset}
+    .crane .cable{position:absolute; width:2px; background:#314a7a}
+
+    /* Drop block */
+    .block{position:absolute; width:var(--w); height:var(--floor); border-radius:10px; background:linear-gradient(180deg,#3b82f6,#1d4ed8);
+      border:1px solid rgba(255,255,255,.07); box-shadow:0 8px 20px rgba(0,0,0,.35)}
+    .block .win{position:absolute; left:10px; right:10px; top:14px; height:22px; display:grid; grid-template-columns:repeat(5,1fr); gap:6px}
+    .block .win span{background:rgba(255,255,255,.12); border-radius:3px}
+
+    /* Tower */
+    .tower-wrap{position:absolute; bottom:calc(var(--arenaPad)); left:50%; transform:translateX(-50%); width:600px; height:100%; pointer-events:none}
+    .tower{position:absolute; bottom:0; left:50%; transform:translateX(-50%); transform-origin:50% 100%;}
+
+    .base{position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:280px; height:22px; background:#0f1f3c; border:1px solid #243a69; border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,.45)}
+
+    /* Overlays */
+    .overlay{position:absolute; inset:0; display:grid; place-items:center; background:rgba(7,12,24,.55); backdrop-filter:blur(2px)}
+    .card{background:#0e1931; border:1px solid var(--line); border-radius:18px; padding:18px; width:min(440px,92%); text-align:center; box-shadow:0 12px 30px rgba(0,0,0,.35)}
+    .title{font-size:22px; margin:0 0 8px}
+    .subtitle{font-size:14px; color:var(--muted); margin:0 0 16px}
+
+    .float-msg{position:absolute; left:50%; transform:translateX(-50%); top:20%; padding:8px 12px; border-radius:999px; background:#1a2848; border:1px solid var(--line); opacity:0; pointer-events:none}
+
+    .hearts{letter-spacing:2px}
+  </style>
 </head>
-<body class="gradient-bg min-h-screen py-8">
-    <div class="container mx-auto px-4 max-w-4xl">
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-white mb-2">🌙 Kecocokan Weton Pasangan</h1>
-            <p class="text-white/80 text-lg">Cek kecocokan berdasarkan tradisi Jawa</p>
-        </div>
-
-        <!-- Input Form -->
-        <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Pria -->
-                <div class="space-y-4">
-                    <h3 class="text-xl font-semibold text-gray-800 flex items-center">
-                        👨 Data Pria
-                    </h3>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama</label>
-                        <input type="text" id="namaPria" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan nama pria">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir</label>
-                        <input type="date" id="tanggalPria" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-                </div>
-
-                <!-- Wanita -->
-                <div class="space-y-4">
-                    <h3 class="text-xl font-semibold text-gray-800 flex items-center">
-                        👩 Data Wanita
-                    </h3>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama</label>
-                        <input type="text" id="namaWanita" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan nama wanita">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir</label>
-                        <input type="date" id="tanggalWanita" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center mt-8">
-                <button onclick="hitungKecocokan()" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                    ✨ Cek Kecocokan Weton
-                </button>
-            </div>
-        </div>
-
-        <!-- Hasil -->
-        <div id="hasilKecocokan" class="hidden">
-            <!-- Hasil akan ditampilkan di sini -->
-        </div>
+<body>
+  <div class="app">
+    <div class="hud">
+      <div class="chip">Lantai: <b data-id="floors">0</b></div>
+      <div class="chip">Populasi: <b data-id="pop">0</b></div>
+      <div class="chip">Combo: <b data-id="combo">x1</b></div>
+      <div class="chip">Distrik: <b data-id="district">Kampung</b></div>
+      <div class="chip hearts" data-id="lives">❤❤❤</div>
+      <div class="spacer"></div>
+      <button class="btn" data-act="pause">⏸️</button>
+      <button class="btn" data-act="resume" disabled>▶️</button>
+      <button class="btn" data-act="reset">🔄</button>
     </div>
 
-    <script>
-        // Data Weton Jawa
-        const hariJawa = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-        const pasaranJawa = ['Kliwon', 'Legi', 'Pahing', 'Pon', 'Wage'];
-        
-        // Nilai numerik untuk perhitungan
-        const nilaiHari = { 'Minggu': 5, 'Senin': 4, 'Selasa': 3, 'Rabu': 7, 'Kamis': 8, 'Jumat': 6, 'Sabtu': 9 };
-        const nilaiPasaran = { 'Kliwon': 8, 'Legi': 5, 'Pahing': 9, 'Pon': 7, 'Wage': 4 };
+    <div class="arena" id="arena">
+      <div class="skyline"></div>
 
-        // Data kecocokan berdasarkan neptu
-        const dataKecocokan = {
-            'sangat_cocok': {
-                range: [1, 9, 10, 18, 19, 27, 28, 36],
-                nama: 'Sangat Cocok',
-                emoji: '💖',
-                warna: 'compatibility-excellent',
-                deskripsi: 'Pasangan yang sangat harmonis dan saling melengkapi',
-                detail: 'Hubungan kalian dipenuhi dengan keharmonisan dan saling pengertian. Kalian memiliki visi yang sama dalam membangun masa depan dan mampu mengatasi berbagai tantangan bersama-sama.',
-                saran: [
-                    'Pertahankan komunikasi yang baik dan terbuka',
-                    'Saling mendukung dalam mencapai impian masing-masing',
-                    'Jaga keseimbangan antara waktu bersama dan waktu pribadi',
-                    'Rayakan pencapaian kecil bersama-sama'
-                ]
-            },
-            'cocok': {
-                range: [2, 8, 11, 17, 20, 26, 29, 35],
-                nama: 'Cocok',
-                emoji: '💕',
-                warna: 'compatibility-good',
-                deskripsi: 'Pasangan yang baik dengan potensi hubungan yang langgeng',
-                detail: 'Kalian memiliki dasar yang kuat untuk membangun hubungan yang bahagia. Meskipun ada perbedaan, kalian mampu saling memahami dan menghargai satu sama lain.',
-                saran: [
-                    'Terus belajar memahami karakter pasangan',
-                    'Komunikasikan harapan dan kebutuhan dengan jelas',
-                    'Bersabar dalam menghadapi perbedaan pendapat',
-                    'Bangun tradisi bersama yang memperkuat ikatan'
-                ]
-            },
-            'cukup_cocok': {
-                range: [3, 7, 12, 16, 21, 25, 30, 34],
-                nama: 'Cukup Cocok',
-                emoji: '💛',
-                warna: 'compatibility-fair',
-                deskripsi: 'Pasangan yang memerlukan usaha lebih untuk keharmonisan',
-                detail: 'Hubungan kalian memiliki potensi yang baik, namun memerlukan komitmen dan usaha ekstra dari kedua belah pihak untuk mencapai keharmonisan yang diinginkan.',
-                saran: [
-                    'Tingkatkan kualitas komunikasi dan empati',
-                    'Cari kesamaan minat dan hobi untuk diperkuat',
-                    'Belajar berkompromi dalam mengambil keputusan',
-                    'Luangkan waktu berkualitas bersama secara rutin'
-                ]
-            },
-            'kurang_cocok': {
-                range: [4, 5, 6, 13, 14, 15, 22, 23, 24, 31, 32, 33],
-                nama: 'Kurang Cocok',
-                emoji: '💔',
-                warna: 'compatibility-poor',
-                deskripsi: 'Pasangan yang menghadapi tantangan besar dalam hubungan',
-                detail: 'Hubungan kalian memerlukan kerja keras dan komitmen yang sangat kuat. Perbedaan karakter dan pandangan hidup mungkin sering menimbulkan konflik.',
-                saran: [
-                    'Fokus pada komunikasi yang sangat terbuka dan jujur',
-                    'Cari bantuan konselor atau orang yang berpengalaman',
-                    'Belajar menghargai perbedaan sebagai kekuatan',
-                    'Tetapkan tujuan bersama yang jelas dan realistis'
-                ]
-            }
-        };
+      <!-- Crane -->
+      <div class="crane" id="crane">
+        <div class="arm" id="arm"></div>
+        <div class="cable" id="cable"></div>
+        <div class="hook" id="hook"></div>
+      </div>
 
-        function hitungWeton(tanggal) {
-            const date = new Date(tanggal);
-            const dayOfWeek = date.getDay();
-            
-            // Hitung pasaran (siklus 5 hari)
-            // Referensi: 1 Januari 1900 adalah Pon
-            const referenceDate = new Date(1900, 0, 1);
-            const daysDiff = Math.floor((date - referenceDate) / (1000 * 60 * 60 * 24));
-            const pasaranIndex = (daysDiff + 3) % 5; // +3 karena 1 Jan 1900 adalah Pon (index 3)
-            
-            const hari = hariJawa[dayOfWeek];
-            const pasaran = pasaranJawa[pasaranIndex];
-            const neptu = nilaiHari[hari] + nilaiPasaran[pasaran];
-            
-            return { hari, pasaran, neptu, weton: `${hari} ${pasaran}` };
+      <!-- Falling / swing block (active) -->
+      <div class="block" id="active" style="display:none">
+        <div class="win"></div>
+      </div>
+
+      <!-- Tower -->
+      <div class="tower-wrap">
+        <div class="tower" id="tower"></div>
+        <div class="base"></div>
+      </div>
+
+      <div class="overlay" id="start">
+        <div class="card">
+          <h2 class="title">Tower Builder Mini</h2>
+          <p class="subtitle">Ketuk/klik untuk <b>drop lantai</b> saat crane mengayun. Jatuhkan sedekat mungkin ke tengah menara.
+            <br>• <b>Perfect</b> (≤6px): +combo & populasi ekstra.
+            <br>• <b>Meleset berat</b>: lantai jatuh ➜ -1 ❤.
+            <br>• <b>Tilt</b> terlalu besar (&gt;14°): menara roboh.
+          </p>
+          <button class="btn primary" data-act="start">Mulai</button>
+          <div style="margin-top:10px; font-size:12px; color:var(--muted)">Mode: Quick Game • No Izin • Siap Web2APK</div>
+        </div>
+      </div>
+
+      <div class="overlay" id="over" style="display:none">
+        <div class="card">
+          <h2 class="title">Game Over</h2>
+          <p class="subtitle" id="summary"></p>
+          <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
+            <button class="btn primary" data-act="restart">Main Lagi</button>
+            <button class="btn" data-act="home">Beranda</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="float-msg" id="float">Perfect!</div>
+    </div>
+  </div>
+
+  <script>
+  (()=>{
+    const $ = (sel,root=document)=>root.querySelector(sel);
+    const arena = $('#arena');
+    const ui = {
+      floors: $('[data-id="floors"]'),
+      pop:    $('[data-id="pop"]'),
+      combo:  $('[data-id="combo"]'),
+      lives:  $('[data-id="lives"]'),
+      district: $('[data-id="district"]'),
+      start:  $('#start'),
+      over:   $('#over'),
+      summary:$('#summary'),
+      btn:{
+        start:$('[data-act="start"]'), restart:$('[data-act="restart"]'), home:$('[data-act="home"]'),
+        pause:$('[data-act="pause"]'), resume:$('[data-act="resume"]'), reset:$('[data-act="reset"]')
+      },
+      float: $('#float'),
+    };
+
+    const crane = { wrap: $('#crane'), arm: $('#arm'), hook: $('#hook'), cable: $('#cable') };
+    const active = $('#active');
+    const tower  = $('#tower');
+
+    const S = {
+      playing:false, paused:false,
+      floors:0, pop:0, combo:1, lives:3, high: +(localStorage.getItem('tb_high')||0),
+      lastX:0, // posisi pusat lantai terakhir
+      arena:{w:0,h:0},
+      block:{w: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--w')), h: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--floor'))},
+      swing:{amp:140, speed:1.15, t:0},
+      fallSpeed: 920, // px/s
+      tilt:0, tiltLimit:14, tiltSpring:0.997, swayAmp:0.6, swaySpd:1.4,
+      fatalDXRatio:0.62, perfectPX:6,
+      camY:0,
+    };
+
+    // Utility
+    function rndColor(){
+      const hues=[210,190,260,330,20,140];
+      const h = hues[Math.floor(Math.random()*hues.length)];
+      return `linear-gradient(180deg, hsl(${h} 85% 62%), hsl(${h} 75% 48%))`;
+    }
+    function mkWindows(el){ el.innerHTML=''; for(let i=0;i<10;i++){const s=document.createElement('span'); el.appendChild(s);} }
+
+    // Layout init
+    function measure(){ const r = arena.getBoundingClientRect(); S.arena.w=r.width; S.arena.h=r.height; }
+    window.addEventListener('resize', measure, {passive:true});
+    measure();
+
+    // Crane position update
+    function craneX(){ return S.arena.w/2 + Math.sin(S.swing.t)*S.swing.amp; }
+    function updateCrane(){
+      const x = craneX();
+      // Arm rotation visual only
+      const angle = Math.atan2(0, 220) * 180/Math.PI; // small tilt
+      crane.arm.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+      const top = 0;
+      const yTop = top+6; // arm base
+      const cabX = x; // over arena center +/-
+      const cabY = 6;
+      const hookY = 120; // cable length
+      crane.cable.style.left = cabX+"px"; crane.cable.style.top = yTop+"px"; crane.cable.style.height = hookY+"px";
+      crane.hook.style.left = (cabX-9)+"px"; crane.hook.style.top = (yTop+hookY-9)+"px";
+      if(active.style.display!=='none'){
+        active.style.left = (cabX - S.block.w/2)+"px";
+        active.style.top  = (yTop+hookY+6)+"px";
+      }
+    }
+
+    function setHUD(){
+      ui.floors.textContent = S.floors;
+      ui.pop.textContent = S.pop;
+      ui.combo.textContent = `x${S.combo}`;
+      ui.lives.textContent = '❤'.repeat(S.lives) + '♡'.repeat(3-S.lives);
+      // Districts by population
+      const d = S.pop < 120 ? 'Kampung' : S.pop < 300 ? 'Kecamatan' : S.pop < 650 ? 'Kota Kecil' : 'Metro';
+      ui.district.textContent = d;
+    }
+
+    // Spawn the swinging block
+    function spawnActive(){
+      active.style.display='block';
+      active.style.width = S.block.w+"px"; active.style.height=S.block.h+"px";
+      active.style.background = rndColor();
+      mkWindows($('.win', active));
+      updateCrane();
+    }
+
+    // Place a static floor into tower
+    function placeFloor(x){
+      const f = document.createElement('div');
+      f.className='block';
+      f.style.width = S.block.w+"px";
+      f.style.height = S.block.h+"px";
+      f.style.left = (x - S.block.w/2) + 'px';
+      f.style.bottom = (S.floors * S.block.h) + 'px';
+      f.style.background = active.style.background;
+      const w = document.createElement('div'); w.className='win'; mkWindows(w); f.appendChild(w);
+      f.style.position='absolute';
+      tower.appendChild(f);
+    }
+
+    function floatMsg(txt, color){
+      const e = ui.float; e.textContent = txt; e.style.borderColor = 'rgba(255,255,255,.12)';
+      e.style.background = '#1a2848'; e.style.color = color || '#fff';
+      e.style.opacity = 0; e.style.transform = 'translate(-50%,-8px)';
+      e.style.transition = 'none';
+      requestAnimationFrame(()=>{
+        e.style.transition = 'opacity .18s ease, transform .18s ease';
+        e.style.opacity = 1; e.style.transform = 'translate(-50%,0)';
+        setTimeout(()=>{ e.style.opacity=0; e.style.transform='translate(-50%, -8px)'; }, 550);
+      });
+    }
+
+    // Drop logic
+    function drop(){
+      if(!S.playing || S.paused || active.style.display==='none') return;
+      // animate fall to current tower top height
+      const startY = parseFloat(active.style.top);
+      const targetY = arena.getBoundingClientRect().height - (S.floors*S.block.h) - parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--arenaPad')) - S.block.h;
+      const x = parseFloat(active.style.left) + S.block.w/2; // center
+      const v = S.fallSpeed; // px/s
+      let y = startY; let t0=null;
+
+      function step(ts){
+        if(!t0) t0 = ts;
+        const dt = (ts - t0)/1000;
+        y = startY + v*dt;
+        if(y >= targetY){
+          active.style.top = targetY+'px';
+          land(x);
+          return;
         }
+        active.style.top = y+'px';
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
 
-        function getKecocokan(neptunPria, neptunWanita) {
-            const selisih = Math.abs(neptunPria - neptunWanita);
-            
-            for (const [key, data] of Object.entries(dataKecocokan)) {
-                if (data.range.includes(selisih)) {
-                    return { ...data, selisih };
-                }
-            }
-            
-            // Default jika tidak ditemukan
-            return { ...dataKecocokan.kurang_cocok, selisih };
+    function land(x){
+      // dx vs lastX (desired center)
+      const dx = x - S.lastX;
+      const fatalDX = S.block.w * S.fatalDXRatio;
+
+      // fatal miss -> floor falls off, lose a life
+      if(Math.abs(dx) > fatalDX){
+        // animate fall down
+        const startTop = parseFloat(active.style.top);
+        let t0=null; function fall(ts){
+          if(!t0) t0=ts; const dt=(ts-t0)/1000; const y = startTop + 1100*dt;
+          active.style.top = y+'px'; active.style.opacity = String(1 - dt*0.9);
+          if(y > S.arena.h + 50){ finishMiss(); return; }
+          requestAnimationFrame(fall);
         }
+        requestAnimationFrame(fall);
+        return;
+      }
 
-        function hitungKecocokan() {
-            const namaPria = document.getElementById('namaPria').value;
-            const namaWanita = document.getElementById('namaWanita').value;
-            const tanggalPria = document.getElementById('tanggalPria').value;
-            const tanggalWanita = document.getElementById('tanggalWanita').value;
+      // Safe: attach to tower
+      placeFloor(x);
+      S.floors += 1;
+      S.pop += 10 + Math.max(0, S.combo-1)*3;
 
-            if (!namaPria || !namaWanita || !tanggalPria || !tanggalWanita) {
-                alert('Mohon lengkapi semua data terlebih dahulu!');
-                return;
-            }
+      // Tilt increases by dx ratio
+      S.tilt += (dx / S.block.w) * 6.5; // degrees step
+      // Perfect
+      if(Math.abs(dx) <= S.perfectPX){
+        S.combo = Math.min(10, S.combo+1);
+        S.pop += 12 + S.combo; // bonus
+        floatMsg('Perfect +'+(12+S.combo), '#a7f3d0');
+        // sedikit tambah tantangan
+        S.swing.amp = Math.min(180, S.swing.amp + 2);
+        S.swing.speed = Math.min(1.6, S.swing.speed + 0.02);
+      } else {
+        S.combo = 1;
+      }
 
-            const wetonPria = hitungWeton(tanggalPria);
-            const wetonWanita = hitungWeton(tanggalWanita);
-            const kecocokan = getKecocokan(wetonPria.neptu, wetonWanita.neptu);
+      // Camera follow
+      S.camY = Math.max(0, S.floors*S.block.h - (S.arena.h*0.45));
+      tower.style.transform = `translateX(-50%) rotate(${S.tilt.toFixed(3)}deg) translateY(${-S.camY}px)`;
 
-            tampilkanHasil(namaPria, namaWanita, wetonPria, wetonWanita, kecocokan);
-        }
+      // Prepare next active block
+      active.style.display='none'; active.style.opacity='1';
+      S.lastX = x; // new target center is last placed
+      spawnActive();
+      setHUD();
 
-        function tampilkanHasil(namaPria, namaWanita, wetonPria, wetonWanita, kecocokan) {
-            const persentase = Math.max(10, 100 - (kecocokan.selisih * 3));
-            
-            const hasilHTML = `
-                <div class="bg-white rounded-2xl card-shadow overflow-hidden">
-                    <!-- Header Hasil -->
-                    <div class="${kecocokan.warna} p-8 text-white text-center">
-                        <div class="text-6xl mb-4">${kecocokan.emoji}</div>
-                        <h2 class="text-3xl font-bold mb-2">${kecocokan.nama}</h2>
-                        <div class="text-xl opacity-90">${persentase}% Kecocokan</div>
-                        <div class="mt-4 bg-white/20 rounded-full h-3 overflow-hidden">
-                            <div class="bg-white h-full rounded-full transition-all duration-1000" style="width: ${persentase}%"></div>
-                        </div>
-                    </div>
+      // Collapse if too tilted
+      if(Math.abs(S.tilt) >= S.tiltLimit){
+        return endGame('Menara terlalu miring!');
+      }
+    }
 
-                    <div class="p-8">
-                        <!-- Data Weton -->
-                        <div class="grid md:grid-cols-2 gap-6 mb-8">
-                            <div class="bg-blue-50 rounded-xl p-6">
-                                <h3 class="font-semibold text-blue-800 mb-3 flex items-center">
-                                    👨 ${namaPria}
-                                </h3>
-                                <div class="space-y-2 text-sm">
-                                    <div><span class="font-medium">Weton:</span> ${wetonPria.weton}</div>
-                                    <div><span class="font-medium">Neptu:</span> ${wetonPria.neptu}</div>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-pink-50 rounded-xl p-6">
-                                <h3 class="font-semibold text-pink-800 mb-3 flex items-center">
-                                    👩 ${namaWanita}
-                                </h3>
-                                <div class="space-y-2 text-sm">
-                                    <div><span class="font-medium">Weton:</span> ${wetonWanita.weton}</div>
-                                    <div><span class="font-medium">Neptu:</span> ${wetonWanita.neptu}</div>
-                                </div>
-                            </div>
-                        </div>
+    function finishMiss(){
+      S.lives -= 1; S.combo = 1; setHUD();
+      floatMsg('-1 ❤', '#fecaca');
+      active.style.display='none'; active.style.opacity='1';
+      spawnActive();
+      if(S.lives <= 0) return endGame('Kehabisan nyawa.');
+      // sedikit turunkan kecepatan agar pulih
+      S.swing.speed = Math.max(0.95, S.swing.speed - 0.05);
+    }
 
-                        <!-- Penjelasan -->
-                        <div class="mb-8">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-4">📖 Penjelasan Kecocokan</h3>
-                            <div class="bg-gray-50 rounded-xl p-6">
-                                <p class="text-gray-700 leading-relaxed mb-4">${kecocokan.deskripsi}</p>
-                                <p class="text-gray-600 leading-relaxed">${kecocokan.detail}</p>
-                            </div>
-                        </div>
+    function endGame(reason){
+      S.playing=false;
+      ui.over.style.display='';
+      ui.summary.innerHTML = `Lantai: <b>${S.floors}</b> • Populasi: <b>${S.pop}</b><br><span style="color:var(--muted)">${reason}</span>`;
+      localStorage.setItem('tb_high', String(Math.max(S.pop, S.high)));
+    }
 
-                        <!-- Saran -->
-                        <div class="mb-8">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-4">💡 Saran untuk Hubungan</h3>
-                            <div class="grid gap-3">
-                                ${kecocokan.saran.map((saran, index) => `
-                                    <div class="flex items-start space-x-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4">
-                                        <div class="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">
-                                            ${index + 1}
-                                        </div>
-                                        <p class="text-gray-700">${saran}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
+    function reset(full=true){
+      S.playing=false; S.paused=false;
+      S.floors=0; S.pop=0; S.combo=1; S.lives=3; S.tilt=0; S.camY=0;
+      S.swing.amp=120; S.swing.speed=1.1; S.swing.t=0;
+      S.lastX = S.arena.w/2;
+      tower.innerHTML='';
+      tower.style.transform = 'translateX(-50%) rotate(0deg) translateY(0)';
+      active.style.display='none'; active.style.opacity='1';
+      ui.over.style.display='none';
+      setHUD();
+      if(full){ ui.start.style.display=''; }
+    }
 
-                        <!-- Informasi Tambahan -->
-                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-xl">
-                            <h4 class="font-semibold text-yellow-800 mb-2">ℹ️ Catatan Penting</h4>
-                            <p class="text-yellow-700 text-sm leading-relaxed">
-                                Perhitungan weton ini berdasarkan tradisi Jawa kuno. Kecocokan sejati dalam hubungan lebih ditentukan oleh komunikasi, saling pengertian, dan komitmen bersama. Gunakan hasil ini sebagai panduan, bukan patokan mutlak.
-                            </p>
-                        </div>
+    function start(){
+      reset(false);
+      ui.start.style.display='none';
+      S.playing=true; S.paused=false; setHUD();
+      spawnActive();
+      requestAnimationFrame(loop);
+    }
 
-                        <!-- Tombol Cek Lagi -->
-                        <div class="text-center mt-8">
-                            <button onclick="cekLagi()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-600 hover:to-blue-600 transform hover:scale-105 transition-all duration-200">
-                                🔄 Cek Pasangan Lain
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
+    function loop(ts){
+      if(!S.playing){ return; }
+      if(S.paused){ requestAnimationFrame(loop); return; }
+      // swing time
+      S.swing.t += S.swing.speed * 0.035;
+      updateCrane();
+      // natural sway & damping
+      const sway = Math.sin(S.swing.t*S.swaySpd) * S.swayAmp;
+      S.tilt *= S.tiltSpring; S.tilt += sway*0.02; // tiny drift
+      tower.style.transform = `translateX(-50%) rotate(${S.tilt.toFixed(3)}deg) translateY(${-S.camY}px)`;
+      requestAnimationFrame(loop);
+    }
 
-            document.getElementById('hasilKecocokan').innerHTML = hasilHTML;
-            document.getElementById('hasilKecocokan').classList.remove('hidden');
-            document.getElementById('hasilKecocokan').scrollIntoView({ behavior: 'smooth' });
-        }
+    // Controls
+    ui.btn.start.addEventListener('click', start);
+    ui.btn.restart.addEventListener('click', start);
+    ui.btn.home.addEventListener('click', ()=> reset(true));
+    ui.btn.pause.addEventListener('click', ()=>{ if(!S.playing||S.paused) return; S.paused=true; ui.btn.pause.disabled=true; ui.btn.resume.disabled=false; });
+    ui.btn.resume.addEventListener('click', ()=>{ if(!S.playing||!S.paused) return; S.paused=false; ui.btn.pause.disabled=false; ui.btn.resume.disabled=true; });
+    ui.btn.reset.addEventListener('click', ()=> reset(true));
 
-        function cekLagi() {
-            document.getElementById('namaPria').value = '';
-            document.getElementById('namaWanita').value = '';
-            document.getElementById('tanggalPria').value = '';
-            document.getElementById('tanggalWanita').value = '';
-            document.getElementById('hasilKecocokan').classList.add('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ab38995027fde7',t:'MTc1NzEzMjkyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    arena.addEventListener('pointerdown', drop);
+    window.addEventListener('keydown', (e)=>{ if(e.key===' '){ e.preventDefault(); drop(); } });
+
+    // Boot
+    reset(true);
+  })();
+  </script>
+</body>
 </html>
