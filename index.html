@@ -204,7 +204,7 @@
     <!-- Main Container -->
     <div class="min-h-screen flex flex-col px-4 py-6 relative z-10 max-w-6xl mx-auto lg:px-8">
         <!-- Header -->
-        <div class="text-center mb-8 flex-shrink-0 relative">
+        <div id="mainHeader" class="text-center mb-8 flex-shrink-0 relative">
             <div class="sparkle" style="top: 10%; left: 20%; animation-delay: 0s;">✨</div>
             <div class="sparkle" style="top: 15%; right: 25%; animation-delay: 1s;">⭐</div>
             <div class="sparkle" style="bottom: 10%; left: 30%; animation-delay: 2s;">💫</div>
@@ -303,12 +303,7 @@
                 <div class="flex-1 grid grid-cols-2 gap-3 lg:gap-4" id="optionsContainer"></div>
             </div>
             
-            <!-- Next Button -->
-            <div class="text-center flex-shrink-0">
-                <button id="nextButton" class="hidden bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-all shadow-2xl" onclick="nextQuestion()">
-                    Lanjut ke Soal Berikutnya 🚀
-                </button>
-            </div>
+
         </div>
         
         <!-- Results Screen -->
@@ -496,6 +491,7 @@
             score = 0;
             answered = false;
             
+            document.getElementById('mainHeader').classList.add('hidden');
             document.getElementById('levelSelection').classList.add('hidden');
             document.getElementById('quizScreen').classList.remove('hidden');
             
@@ -521,7 +517,6 @@
                 optionsContainer.appendChild(button);
             });
             
-            document.getElementById('nextButton').classList.add('hidden');
             answered = false;
             
             updatePlantProgress();
@@ -550,7 +545,10 @@
                 createFloatingLeaves();
             }
             
-            document.getElementById('nextButton').classList.remove('hidden');
+            // Auto advance to next question after 1.5 seconds
+            setTimeout(() => {
+                nextQuestion();
+            }, 1500);
         }
         
         // Create floating leaves animation
@@ -649,11 +647,12 @@
         // Change difficulty level
         function changeDifficulty() {
             document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('mainHeader').classList.remove('hidden');
             document.getElementById('levelSelection').classList.remove('hidden');
         }
         
         // Initialize the app
         createFloatingCells();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4f46245e45fa8',t:'MTc1NzczODMwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e4ffe03206c211',t:'MTc1NzczODc3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
